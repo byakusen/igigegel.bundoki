@@ -448,6 +448,7 @@ let reflexRay2Dir=210;                    // もう一方の辺の 向き(度) =
 let reflexPhase='remain';                 // 'remain'(のこり入力) / 'total'(合計入力) / 'done'
 let reflexRemDone=false;                  // のこりの角が 正解したか
 let reflexTop=false;                       // true=180°が上（角は上に開く・分度器は180°回転）／false=180°が下（従来）
+let reflexProtT0=0;                         // 分度器を ふんわり 出しはじめる 時刻(ms)。0=演出なし
 
 /* ===== 大きい角２（reflex2・360−方式）の 状態 ===== */
 let r2Small=30;                           // はかる「のこりの角」（小さいほうの角）＝ひく数
@@ -689,6 +690,7 @@ function newProblem(){
   reflexRay2Dir = reflexTop ? (180 + reflexRem) : (180 - reflexRem);
   extended=false; reflexPhase='remain'; reflexRemDone=false;
   extHandle = { x:P.x - 50, y:P.y };
+  reflexProtT0=0;
   if(answerMode==='reflex'){
     document.getElementById('reflexArea').style.display='none';
     document.getElementById('inputArea').style.display='none';
@@ -857,7 +859,7 @@ function drawProtractorImage(px,py,rotDeg,flip){
   ctx.translate(px,py);
   ctx.rotate(-rotDeg*D2R + imgCfg.rotOffsetDeg*D2R);
   if(flip) ctx.scale(1,-1);
-  ctx.globalAlpha = 0.92;
+  ctx.globalAlpha = 0.92 * ctx.globalAlpha;   // 外側で かけた フェードを 引きつぐ（一気に出ない）
   ctx.drawImage(img, -pvx, -pvy, dispW, dispH);
   ctx.restore();
   ctx.globalAlpha=1;
@@ -1036,40 +1038,52 @@ function drawZeroHint(){
 }
 
 function render(){
-  clear();
-  if(answerMode==='reflex'){
-    drawReflexBase();             // 辺・のばした線（こい色）
-    if(extended) drawProtractor();// 下向きの分度器（のばしたあと）
-    drawReflexTop();              // 上に薄く重ねる＋弧・ラベル・ハンドル
-    drawVertex();
-  } else if(answerMode==='reflex2'){
-    drawReflex2();                // 2本の辺・分度器・弧・ラベル
-    drawVertex();
-  } else if(answerMode==='triangle'){
-    drawTriangle();               // 底辺・分度器・2辺の作図・完成
-  } else if(answerMode==='jougi'){
-    drawJougi();                  // 2つの三角定規の 組み合わせ
-  } else if(answerMode==='estimate'){
-    drawEstimate();               // 見つもり：分度器なしで 角だけ 見せる
-    drawVertex();
-  } else if(answerMode==='draw'){
-    drawBaseRay(false);   // 下の線（基準の辺）
-    drawProtractor();
-    drawBaseRay(true);    // 上に薄く重ねる
-    if(prot.snapped) drawZeroHint();
-    drawDrawOverlay();    // 印・線・角度（クリック後）＋まちがい演出
-    drawVertex();
-  } else {
-    drawRays(false);     // 下の線
-    drawProtractor();    // 分度器
-    drawRays(true);      // 上に薄く重ねる(目もりが見えるように)
-    if(prot.snapped) drawZeroHint();   // ③のとき 辺がある側の0を赤丸
-    drawVertex();
+  try{
+    clear();
+    if(answerMode==='reflex'){
+      drawReflexBase();             // 辺・のばした線（こい色）
+      if(extended){                 // 下向きの分度器（のばしたあと・ふんわり登場）
+        const a = protAlpha();
+        if(a > 0){
+          ctx.save(); ctx.globalAlpha = a;
+          drawProtractor();
+          ctx.restore();
+        }
+      }
+      drawReflexTop();              // 上に薄く重ねる＋弧・ラベル・ハンドル
+      drawVertex();
+    } else if(answerMode==='reflex2'){
+      drawReflex2();                // 2本の辺・分度器・弧・ラベル
+      drawVertex();
+    } else if(answerMode==='triangle'){
+      drawTriangle();               // 底辺・分度器・2辺の作図・完成
+    } else if(answerMode==='jougi'){
+      drawJougi();                  // 2つの三角定規の 組み合わせ
+    } else if(answerMode==='estimate'){
+      drawEstimate();               // 見つもり：分度器なしで 角だけ 見せる
+      drawVertex();
+    } else if(answerMode==='draw'){
+      drawBaseRay(false);   // 下の線（基準の辺）
+      drawProtractor();
+      drawBaseRay(true);    // 上に薄く重ねる
+      if(prot.snapped) drawZeroHint();
+      drawDrawOverlay();    // 印・線・角度（クリック後）＋まちがい演出
+      drawVertex();
+    } else {
+      drawRays(false);     // 下の線
+      drawProtractor();    // 分度器
+      drawRays(true);      // 上に薄く重ねる(目もりが見えるように)
+      if(prot.snapped) drawZeroHint();   // ③のとき 辺がある側の0を赤丸
+      drawVertex();
+    }
+    if(placeFlash>0) placeFlash-=0.03;
+    if(snapFlash>0)  snapFlash-=0.02;
+    if(wrongFlash && wrongFlash.t>0) wrongFlash.t-=0.02;
+    if(estReveal && estRevealT<1) estRevealT=Math.min(1, estRevealT+0.06);
+  }catch(err){
+    // 1フレームで 何かあっても 画面が 固まらない（操作・吸着を 止めない）ように
+    if(window.console) console.warn('描画スキップ:', err);
   }
-  if(placeFlash>0) placeFlash-=0.03;
-  if(snapFlash>0)  snapFlash-=0.02;
-  if(wrongFlash && wrongFlash.t>0) wrongFlash.t-=0.02;
-  if(estReveal && estRevealT<1) estRevealT=Math.min(1, estRevealT+0.06);
   requestAnimationFrame(render);
 }
 
@@ -1537,9 +1551,34 @@ function triClick(p){
 /* ======================= 操作（ポインタ＝マウス＋タッチ） ======================= */
 function localPt(e){
   const r=cv.getBoundingClientRect();
-  return { x:(e.clientX-r.left), y:(e.clientY-r.top) };
+  // 画面上の見た目サイズ(r.width/height)と 内部座標(W/H)が ずれても
+  // タッチ位置を 正しい座標に そろえる（ずれが無ければ 倍率1で 従来どおり）
+  const sx = r.width  > 0 ? (W / r.width)  : 1;
+  const sy = r.height > 0 ? (H / r.height) : 1;
+  return { x:(e.clientX-r.left)*sx, y:(e.clientY-r.top)*sy };
 }
 function dist(ax,ay,bx,by){ return Math.hypot(ax-bx,ay-by); }
+
+// 点P から 線分(x1,y1)-(x2,y2) までの 最短きょり（速いドラッグの 通り道判定用）
+function segDistToP(x1,y1,x2,y2){
+  const vx=x2-x1, vy=y2-y1;
+  const len2=vx*vx+vy*vy;
+  let t = len2>0 ? ((P.x-x1)*vx+(P.y-y1)*vy)/len2 : 0;
+  t = Math.max(0, Math.min(1, t));
+  const cx=x1+t*vx, cy=y1+t*vy;
+  return Math.hypot(P.x-cx, P.y-cy);
+}
+
+// 大きい角モードで 分度器を ふんわり 出すための 不透明度(0〜1)
+function protAlpha(){
+  if(answerMode!=='reflex' || !reflexProtT0) return 1;   // ほかのモードは いつも くっきり
+  const t = performance.now() - reflexProtT0;
+  if(t <= 0) return 0;                                    // はじめの 0.5秒は まだ 出さない
+  const FADE = 2000;                                      // 2秒 かけて ゆっくり ふんわり
+  if(t >= FADE) return 1;
+  const f = t / FADE;
+  return f*f*(3 - 2*f);                                   // ゆったり 始まり ゆったり 収まる（イーズ）
+}
 
 cv.addEventListener('pointerdown', e=>{
   e.preventDefault();
@@ -1589,19 +1628,27 @@ cv.addEventListener('pointermove', e=>{
     return;
   }
   if(drag.mode==='move'){
+    const oldX=prot.x, oldY=prot.y;
     prot.x = p.x + drag.offX;
     prot.y = p.y + drag.offY;
-    if(dist(prot.x,prot.y,P.x,P.y) <= SNAP_POS){
+    // いまの位置が 近い／速く動かして 通り道が 中心の近くを かすめた ときも 吸着
+    if(dist(prot.x,prot.y,P.x,P.y) <= SNAP_POS || segDistToP(oldX,oldY,prot.x,prot.y) <= SNAP_POS){
+      prot.x=P.x; prot.y=P.y;
       prot.placed=true; placeFlash=1.0;
       drag=null;
       updateSteps(); updateGuide();
     }
   } else if(drag.mode==='rot'){
+    const oldRot = prot.rot;
     const pa = ptAngle(p.x,p.y);
     prot.rot = pa + drag.offRot;
     // 底辺(0°)を まっすぐな線に合わせる。上に180°の問題は 分度器を 180°回して使う
     const snapTo = (answerMode==='reflex' && reflexTop) ? 180 : 0;
-    if(Math.abs(angDiff(prot.rot,snapTo)) <= SNAP_ROT){
+    const dNew = angDiff(prot.rot, snapTo);
+    const dOld = angDiff(oldRot,  snapTo);
+    // 窓の中に 入った／速く回して 目標を またいだ ときに 吸着
+    const crossed = ((dOld>0)!==(dNew>0)) && (Math.abs(dOld)+Math.abs(dNew) < 90);
+    if(Math.abs(dNew) <= SNAP_ROT || crossed){
       prot.rot=snapTo; prot.snapped=true; snapFlash=1.0;
       drag=null;
       updateSteps(); updateGuide();
@@ -1618,6 +1665,17 @@ function endDrag(e){
       return;
     }
     extHandle.x = P.x - 50; extHandle.y = P.y;  // たりなければ もとに もどす
+  }
+  // ゆっくり 置いた／回した ときの とりこぼし防止：はなした しゅんかんに 窓内なら 吸着
+  if(drag && drag.mode==='move' && dist(prot.x,prot.y,P.x,P.y) <= SNAP_POS){
+    prot.x=P.x; prot.y=P.y; prot.placed=true; placeFlash=1.0;
+    updateSteps(); updateGuide();
+  } else if(drag && drag.mode==='rot'){
+    const snapTo = (answerMode==='reflex' && reflexTop) ? 180 : 0;
+    if(Math.abs(angDiff(prot.rot,snapTo)) <= SNAP_ROT){
+      prot.rot=snapTo; prot.snapped=true; snapFlash=1.0;
+      updateSteps(); updateGuide();
+    }
   }
   drag=null;
 }
@@ -1811,6 +1869,7 @@ function reflexOnExtended(){
   reflexPhase='remain'; reflexRemDone=false;
   prot.x = P.x + W*0.24; prot.y = P.y + (reflexTop? -H*0.06 : H*0.06); prot.rot = reflexTop ? 194 : 14;
   prot.placed=false; prot.snapped=false;
+  reflexProtT0 = performance.now() + 500;   // 0.5秒 まってから ふんわり 登場（びっくり防止）
   ansEl.value='';
   document.getElementById('ansLabel').textContent='のこり';
   document.getElementById('reflexArea').style.display='flex';
@@ -2023,6 +2082,7 @@ function setMode(m){
   if(isReflex){
     extended=false; reflexPhase='remain'; reflexRemDone=false;
     extHandle = { x:P.x - 50, y:P.y };
+    reflexProtT0=0;
     prot.placed=false; prot.snapped=false;
     document.getElementById('ansLabel').textContent='のこり';
     reflexRefreshCalc();
@@ -2187,6 +2247,11 @@ document.getElementById('useimg').addEventListener('change',e=>imgCfg.useImage=e
 
 /* ======================= 起動 ======================= */
 window.addEventListener('resize', ()=>{ resize(); });
+// 画面回転や アドレスバー・キーボードの 開閉でも サイズを 取り直す（吸着ズレ防止）
+window.addEventListener('orientationchange', ()=>{ resize(); setTimeout(resize, 300); });
+if(window.visualViewport){ window.visualViewport.addEventListener('resize', ()=>{ resize(); }); }
+// フォント確定で 文字幅が 変わり 親の幅が ずれることがあるので 確定後にも 取り直す
+if(document.fonts && document.fonts.ready){ document.fonts.ready.then(()=>{ resize(); }); }
 resize();
 newProblem();
 render();
