@@ -422,6 +422,8 @@ let W=0,H=0,DPR=1;
 let P={x:0,y:0}, R=120, rayLen=150;
 let target=60;                 // 答えの角度
 let rayADir=0, rayBDir=60;     // 黒い線・オレンジ線の 向き(度)
+let baseTarget=60;             // 標準もんだい（選択・記入・見つもり・かく）の 正解（上書きされない 保管用）
+let baseLeftSide=false;        // 標準もんだいで 黒い線が 左向きか
 let prot={ x:0,y:0, rot:30, placed:false, snapped:false };
 let drag=null;                 // {mode:'move'|'rot', offX,offY, offRot}
 let placeFlash=0, snapFlash=0;
@@ -594,6 +596,19 @@ function hideHanamaru(){ document.getElementById('hanamaru').classList.remove('s
 /* ======================= 角度ユーティリティ ======================= */
 const D2R = Math.PI/180;
 function angDiff(a,b){ let d=((a-b)%360+540)%360-180; return d; }
+
+// 標準もんだい（選択・記入・見つもり・かく）の 辺と正解を baseTarget から 作りなおす。
+// 「大きい角２」や「三角形」は rayADir/rayBDir/target を 上書きするので、
+// これらのタブへ もどる ときは かならず ここで 復元する（図と答えが ずれる 不具合の 根本対策）。
+function applyBaseProblem(){
+  target  = baseTarget;
+  rayADir = baseLeftSide ? 180 : 0;
+  rayBDir = baseLeftSide ? (180 - baseTarget) : baseTarget;
+}
+
+// いま 画面に 描かれている 2本の辺が つくる 角（度・正の値）。
+// 見つもりの「ほんとうの答え」は かならず ここから 取る ＝ 図と 食いちがう ことが 構造的に 起きない。
+function estAnswer(){ return Math.round(Math.abs(angDiff(rayBDir, rayADir))); }
 function ptAngle(px,py){ // Pを中心とした数学角(度,CCW)
   return Math.atan2(P.y-py, px-P.x)/D2R;
 }
@@ -658,14 +673,14 @@ function newProblem(){
   const list=[];
   for(let a=20;a<=160;a+=5) list.push(a);
   target = list[Math.floor(Math.random()*list.length)];
+  baseTarget = target;                        // 標準もんだいの 正解を 保管（ほかのモードに 上書きされない）
   // 選択肢：正解 と 180−正解（＝うら側の目もり）。90°は裏も90°になるので近い値にする
   let distractor = 180 - target;
   if(distractor === target) distractor = (Math.random()<0.5 ? target-10 : target+10);
   choices = (Math.random()<0.5) ? [target, distractor] : [distractor, target];
   // 黒い線を 右 or 左 に（ランダム）。角の大きさは どちらでも target
-  const leftSide = Math.random()<0.5;
-  rayADir = leftSide ? 180 : 0;
-  rayBDir = leftSide ? (180 - target) : target;
+  baseLeftSide = Math.random()<0.5;
+  applyBaseProblem();                         // 辺の向きは 1か所（applyBaseProblem）で 管理する
   // 分度器を 端っこ・かたむけて 置く
   const side = Math.random()<0.5?-1:1;
   prot.x = P.x + side*(W*0.28);
@@ -837,9 +852,10 @@ function drawEstimate(){
     ctx.fillStyle='#e85d3b'; ctx.font='900 34px "Yusei Magic",sans-serif';
     ctx.fillText('?', mid.x, mid.y);
   } else {
+    const trueA = estAnswer();   // 画面の 図から 計算した 角度（図と 表示が ぜったいに 一致）
     ctx.font='900 28px "Yusei Magic",sans-serif';
-    ctx.lineWidth=6; ctx.lineJoin='round'; ctx.strokeStyle='#fff'; ctx.strokeText(target+'°', mid.x, mid.y);
-    ctx.fillStyle='#138577'; ctx.fillText(target+'°', mid.x, mid.y);
+    ctx.lineWidth=6; ctx.lineJoin='round'; ctx.strokeStyle='#fff'; ctx.strokeText(trueA+'°', mid.x, mid.y);
+    ctx.fillStyle='#138577'; ctx.fillText(trueA+'°', mid.x, mid.y);
     if(estGuess!=null){
       ctx.font='800 15px "Zen Maru Gothic",sans-serif';
       ctx.lineWidth=4; ctx.strokeStyle='#fff'; ctx.strokeText('よそう '+estGuess+'°', mid.x, mid.y+26);
@@ -1842,21 +1858,22 @@ function checkEstimate(){
   hideHanamaru();
   if(isNaN(v)){ res.textContent='よそうの すうじを 入力してね'; res.className='result ng'; return; }
   estGuess=v; estReveal=true; estRevealT=0;
-  const diff=Math.abs(v-target);
+  const trueA = estAnswer();   // 図に 描かれた 角度で 採点（図・表示・採点が かならず 一致）
+  const diff=Math.abs(v-trueA);
   if(diff===0){
-    res.innerHTML='ぴったり！ すごい！ ほんとうは <b>'+target+'°</b> 🎯'; res.className='result ok';
+    res.innerHTML='ぴったり！ すごい！ ほんとうは <b>'+trueA+'°</b> 🎯'; res.className='result ok';
     markCorrect();
   } else if(diff<=5){
-    res.innerHTML='おしい！ ほぼ ぴったり！ ほんとうは <b>'+target+'°</b>（差 '+diff+'°）'; res.className='result ok';
+    res.innerHTML='おしい！ ほぼ ぴったり！ ほんとうは <b>'+trueA+'°</b>（差 '+diff+'°）'; res.className='result ok';
     markCorrect();
   } else if(diff<=10){
-    res.innerHTML='いいかんじ！ ほんとうは <b>'+target+'°</b>（差 '+diff+'°）'; res.className='result ok';
+    res.innerHTML='いいかんじ！ ほんとうは <b>'+trueA+'°</b>（差 '+diff+'°）'; res.className='result ok';
     markCorrect();
   } else if(diff<=20){
-    res.innerHTML='もう少し！ ほんとうは <b>'+target+'°</b>（差 '+diff+'°）'; res.className='result ng';
+    res.innerHTML='もう少し！ ほんとうは <b>'+trueA+'°</b>（差 '+diff+'°）'; res.className='result ng';
   } else {
-    const hint = (v>target)? '本物は もっと 小さい角だよ' : '本物は もっと 大きい角だよ';
-    res.innerHTML=hint+'。 ほんとうは <b>'+target+'°</b>（差 '+diff+'°）'; res.className='result ng';
+    const hint = (v>trueA)? '本物は もっと 小さい角だよ' : '本物は もっと 大きい角だよ';
+    res.innerHTML=hint+'。 ほんとうは <b>'+trueA+'°</b>（差 '+diff+'°）'; res.className='result ng';
   }
   updateGuide();
 }
@@ -2079,6 +2096,10 @@ function setMode(m){
   renderChoices();
   setStepLabels(m);
   layout();
+  if(isChoice||isInput||isEstimate||isDraw){
+    // 「大きい角２」「三角形」が 上書きした 辺と正解を もとに もどす（図と答えの ずれ防止）
+    applyBaseProblem();
+  }
   if(isReflex){
     extended=false; reflexPhase='remain'; reflexRemDone=false;
     extHandle = { x:P.x - 50, y:P.y };
