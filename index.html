@@ -3,12 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>分度器（ぶんどき）で 角（かく）を よもう</title>
+<title>角の大きさ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Yusei+Magic&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
 <style>
   :root{
+    /* 画面が 低い ときに 縦を つめる ための ものさし（48） */
+    --vgap:clamp(4px,1vh,8px);
+    --vpad:clamp(5px,1.2vh,9px);
+    --vpad-s:clamp(3px,0.8vh,6px);
     --paper:#fbf3e2;
     --paper2:#fff;
     --ink:#34465f;
@@ -32,18 +36,18 @@
       linear-gradient(var(--grid) 1px,transparent 1px) 0 0/26px 26px,
       linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/26px 26px,
       var(--paper);
-    min-height:100vh;
+    height:100vh;height:100dvh;overflow:hidden;
     display:flex;flex-direction:column;align-items:center;
-    padding:14px 12px 28px;
+    padding:8px 10px 8px;
   }
-  .wrap{width:100%;max-width:680px;}
+  .wrap{width:100%;max-width:1400px;height:100%;display:flex;flex-direction:column;min-height:0;}
   header{
     display:flex;align-items:center;justify-content:space-between;
-    gap:10px;margin-bottom:10px;
+    gap:10px;margin-bottom:6px;flex:0 0 auto;
   }
   h1{
     font-family:"Yusei Magic",sans-serif;
-    font-size:clamp(20px,5.4vw,30px);
+    font-size:clamp(18px,2.6vw,26px);
     margin:0;color:var(--teal-d);letter-spacing:.5px;
     text-shadow:2px 2px 0 #fff;
   }
@@ -57,32 +61,57 @@
     font-weight:900;font-size:clamp(14px,3.6vw,18px);
     color:#7a5a10;white-space:nowrap;
   }
+  /* 61：10問チャレンジ（challenge10.js）を ヘッダーに なじませる */
+  #chal-mount{flex:1 1 auto;min-width:0;display:flex;justify-content:center;}
+  #chal-mount #chal-wrap{flex-wrap:nowrap;gap:8px;}
+  #chal-mount .chal-btn{font-family:"Yusei Magic",sans-serif;font-size:clamp(13px,1.7vw,17px);padding:5px 14px;white-space:nowrap;}
+  #chal-mount #chal-bar{padding:4px 12px;font-size:clamp(12px,1.5vw,15px);}
+  #chal-mount #chal-dots{font-size:clamp(12px,1.6vw,17px);letter-spacing:1px;}
+  body #chal-result .chal-card, #chal-result button{font-family:"Yusei Magic",sans-serif;}
+  body #chal-result{z-index:1000;}
   /* tabs */
-  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
-  .tab{
-    flex:1 1 22%;display:flex;align-items:center;justify-content:center;gap:5px;
-    min-width:70px;
+    /* 親タブ（角度／分度器／応用問題／三角形） */
+  .gtabs{display:flex;gap:7px;margin-bottom:var(--vgap);flex:0 0 auto;}
+  .gtab{
+    flex:1 1 0;display:flex;align-items:center;justify-content:center;gap:6px;
     background:#fff;border:3px solid var(--line);border-bottom-width:5px;
-    border-radius:16px;padding:11px 4px;cursor:pointer;
-    font-family:"Yusei Magic",sans-serif;font-size:clamp(13px,3.6vw,19px);
+    border-radius:16px 16px 8px 8px;padding:var(--vpad) 6px;cursor:pointer;
+    font-family:"Yusei Magic",sans-serif;font-size:clamp(14px,2vw,20px);
+    color:var(--ink-soft);box-shadow:0 4px 0 #e4dac1;transition:.2s;white-space:nowrap;
+  }
+  .gtab .tic{font-size:1.1em;}
+  .gtab:active{transform:translateY(2px);box-shadow:0 2px 0 #e4dac1;}
+  .gtab.active{
+    color:#fff;background:var(--coral);border-color:var(--coral-d);
+    box-shadow:0 4px 0 var(--coral-d);
+  }
+  /* 小タブ（いま えらんでいる 親タブの 中身だけ 出す） */
+  .tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:var(--vgap);flex:0 0 auto;justify-content:center;}
+  .tab{
+    flex:1 1 130px;max-width:300px;display:flex;align-items:center;justify-content:center;gap:5px;
+    min-width:62px;
+    background:#fff;border:3px solid var(--line);border-bottom-width:5px;
+    border-radius:16px;padding:var(--vpad) 4px;cursor:pointer;
+    font-family:"Yusei Magic",sans-serif;font-size:clamp(12px,1.7vw,16px);
     color:var(--ink-soft);box-shadow:0 4px 0 #e4dac1;transition:.2s;white-space:nowrap;
   }
   .tab .tic{font-size:1.15em;}
+  .tab .tlab{text-align:center;line-height:1.15;}
   .tab:active{transform:translateY(2px);box-shadow:0 2px 0 #e4dac1;}
   .tab.active{
     color:#fff;background:var(--teal);border-color:var(--teal-d);
     box-shadow:0 4px 0 var(--teal-d);
   }
   /* steps */
-  .steps{display:flex;gap:8px;margin-bottom:10px;}
+  .steps{display:flex;gap:8px;margin-bottom:var(--vgap);flex:0 0 auto;}
   .step{
     flex:1;display:flex;align-items:center;gap:8px;justify-content:center;
     background:#fff;border:3px solid var(--line);border-radius:14px;
-    padding:8px 6px;font-weight:700;font-size:clamp(11px,3vw,14px);
+    padding:var(--vpad-s) 6px;font-weight:700;font-size:clamp(11px,1.4vw,14px);
     color:var(--ink-soft);transition:.25s;
   }
   .step .num{
-    width:26px;height:26px;border-radius:50%;background:var(--line);color:#fff;
+    width:22px;height:22px;border-radius:50%;background:var(--line);color:#fff;
     display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;flex:0 0 auto;
   }
   .step.active{border-color:var(--teal);color:var(--teal-d);background:#eafbf8;box-shadow:0 4px 0 #bfeee7;}
@@ -94,9 +123,10 @@
     position:relative;background:var(--paper2);
     border:4px dashed var(--line);border-radius:22px;
     box-shadow:0 8px 0 rgba(0,0,0,.05),0 14px 30px rgba(80,90,120,.10);
-    padding:8px;overflow:hidden;
+    padding:6px;overflow:hidden;
+    flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;
   }
-  canvas{display:block;width:100%;height:auto;touch-action:none;border-radius:14px;cursor:grab;}
+  canvas{display:block;width:auto;height:auto;max-width:100%;max-height:100%;touch-action:none;border-radius:14px;cursor:grab;}
   canvas:active{cursor:grabbing;}
   .hanamaru{
     position:absolute;left:50%;top:auto;bottom:2px;
@@ -106,6 +136,12 @@
     z-index:5;
   }
   .hanamaru.show{animation:hanamaru-pop .6s cubic-bezier(.2,1.3,.4,1) forwards;}
+  /* しばらく したら ふわっと 消す（49） */
+  .hanamaru.fade{animation:hanamaru-fade .5s ease-in forwards;}
+  @keyframes hanamaru-fade{
+    0%{transform:translate(-50%,0) scale(1);opacity:1;}
+    100%{transform:translate(-50%,0) scale(.85);opacity:0;}
+  }
   @keyframes hanamaru-pop{
     0%{transform:translate(-50%,0) scale(0) rotate(-28deg);opacity:0;}
     60%{transform:translate(-50%,0) scale(1.15) rotate(7deg);opacity:1;}
@@ -113,58 +149,102 @@
   }
 
   .guide{
-    margin:12px 0 6px;background:#fff;border:3px solid var(--teal);
-    border-radius:16px;padding:10px 14px;font-weight:700;
-    color:var(--ink);font-size:clamp(14px,3.8vw,18px);line-height:1.5;
+    margin:8px 0 0;background:#fff;border:3px solid var(--teal);
+    border-radius:16px;padding:9px 12px;font-weight:700;flex:0 0 auto;
+    color:var(--ink);font-size:clamp(13px,1.5vw,17px);line-height:1.45;
+    /* 48：文が 1行でも 2行でも 高さを 変えない。24px＝上下パディング18＋わく6 */
+    height:calc(2.9em + 28px);overflow:hidden;
     box-shadow:0 5px 0 #cdeee9;display:flex;gap:10px;align-items:center;
   }
-  .guide .ic{font-size:24px;flex:0 0 auto;}
+  .guide .ic{font-size:21px;flex:0 0 auto;}
+  .guide > #guide{flex:1 1 auto;min-width:0;}
+  /* ヒントボタン（ガイド枠の 右はし）。わくの 高さは 変えない */
+  .hintbtn{
+    flex:0 0 auto;display:flex;align-items:center;gap:4px;
+    font-family:"Yusei Magic",sans-serif;font-size:clamp(11px,1.2vw,14px);
+    color:#8a6d1f;background:#fff5d0;border:2px solid #e8c85a;
+    border-radius:999px;padding:5px 11px;cursor:pointer;
+    box-shadow:0 3px 0 #e0bb46;transition:.15s;white-space:nowrap;
+  }
+  .hintbtn:active{transform:translateY(2px);box-shadow:0 1px 0 #e0bb46;}
+  .hintbtn.on{color:#fff;background:#e8b52e;border-color:#c9991f;box-shadow:0 3px 0 #c9991f;}
+  /* ヒントを 出している あいだは わくの 色を かえる */
+  .guide.hinting{border-color:#e8c85a;box-shadow:0 5px 0 #f0e0aa;background:#fffdf3;}
+  /* 画面が せまい ときは 電球だけに して、文の ばしょを ゆずる */
+  @media (max-width:1099px){
+    .hintbtn > span{display:none;}
+    .hintbtn{padding:5px 9px;font-size:16px;}
+  }
   ruby rt{font-size:.55em;color:var(--ink-soft);font-weight:700;}
 
   .answer{
-    display:flex;gap:10px;align-items:stretch;margin-top:12px;flex-wrap:wrap;
+    display:flex;gap:10px;align-items:stretch;margin-top:var(--vgap);flex-wrap:wrap;
   }
   .answer .field{
     flex:1 1 150px;display:flex;align-items:center;gap:8px;
-    background:#fff;border:3px solid var(--coral);border-radius:16px;padding:6px 10px 6px 14px;
+    background:#fff;border:3px solid var(--coral);border-radius:16px;padding:var(--vpad-s) 10px var(--vpad-s) 14px;
     box-shadow:0 5px 0 #f5c4b5;
   }
   .answer label{font-weight:900;font-size:clamp(15px,4vw,19px);white-space:nowrap;color:var(--coral-d);}
   #ans{
     flex:1;min-width:60px;border:none;outline:none;background:transparent;
-    font-family:"Yusei Magic",sans-serif;font-size:clamp(26px,7vw,36px);
+    font-family:"Yusei Magic",sans-serif;font-size:clamp(18px,4.6vh,34px);
     color:var(--ink);text-align:center;width:100%;
   }
   .unit{font-weight:900;font-size:clamp(18px,5vw,26px);color:var(--ink-soft);}
+  /* 「°」は 字が 小さく 見えるので 大きめに（49） */
+  .unit.deg{font-size:clamp(30px,8vw,44px);line-height:1;align-self:center;}
 
   .numpad{
-    display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
-    margin-top:12px;background:#e7f5fd;border:3px solid #cbe7f7;
-    border-radius:18px;padding:12px;
+    display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr);gap:7px;
+    margin-top:var(--vgap);background:#e7f5fd;border:3px solid #cbe7f7;
+    border-radius:18px;padding:9px;
+    flex:1 1 auto;min-height:0;max-height:min(46vh,430px);
     box-shadow:inset 0 2px 8px rgba(120,170,200,.18);
   }
   .key{
-    font-family:"Yusei Magic",sans-serif;font-size:clamp(24px,7vw,34px);
+    font-family:"Yusei Magic",sans-serif;font-size:clamp(20px,4.4vh,32px);
     color:#1f9bd6;background:#fff;border:none;border-radius:14px;
-    min-height:clamp(48px,12vw,70px);box-shadow:0 4px 0 #cfe7f4;
+    min-height:0;box-shadow:0 4px 0 #cfe7f4;
     display:flex;align-items:center;justify-content:center;
   }
   .key:active{transform:translateY(3px);box-shadow:0 1px 0 #cfe7f4;}
-  .key.del{color:#7fb0d0;background:#f1f8fd;font-size:clamp(22px,6vw,30px);}
+  .key.del{color:#7fb0d0;background:#f1f8fd;font-size:clamp(18px,3.8vh,27px);}
   .key.ok{color:#fff;background:linear-gradient(#42b2ee,#1f8fd6);
-    box-shadow:0 4px 0 #1773b0;font-size:clamp(22px,6vw,30px);}
+    box-shadow:0 4px 0 #1773b0;font-size:clamp(18px,3.8vh,27px);}
   .key.ok:active{box-shadow:0 1px 0 #1773b0;}
+
+  /* 53：2つの考え方は 式を 入力する（＋・− の キーを テンキーに まぜる） */
+  .key.op{display:none;color:#e85d3b;background:#fff4ef;box-shadow:0 4px 0 #f6d3c6;}
+  .key.op:active{box-shadow:0 1px 0 #f6d3c6;}
+  .numpad.ops{grid-template-columns:repeat(4,1fr);}
+  .numpad.ops .key.op{display:flex;}
+  .numpad.ops .key[data-op="+"]{grid-column:4;grid-row:1;}
+  .numpad.ops .key[data-op="−"]{grid-column:4;grid-row:2;}
+  .numpad.ops #npdel{grid-column:4;grid-row:3;}
+  .numpad.ops .key[data-d="0"]{grid-column:1 / 4;grid-row:4;}
+  .numpad.ops #npok{grid-column:4;grid-row:4;}
+  #exprBox{display:none;}
+  #exprBox .field{justify-content:flex-start;}
+  #exprText{flex:1 1 auto;min-width:0;text-align:center;white-space:nowrap;
+    font-family:"Yusei Magic",sans-serif;font-size:clamp(20px,4.8vh,36px);color:var(--ink);}
+  #exprText .ph{color:#b5bfcc;}
+  #exprText .opc{color:#e85d3b;margin:0 .12em;}
+  #exprText .eqans{color:var(--ok);}
+  #exprText.done{color:var(--ok);}
+  .ansrow.expr > .answer#ansBox{display:none;}
+  .ansrow.expr > #exprBox{display:block;margin-top:0;flex:1 1 0;min-width:0;}
 
   /* choice (選択) mode */
   .choices{
-    display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px;
+    display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;
   }
   .choice{
     font-family:"Yusei Magic",sans-serif;
-    font-size:clamp(30px,9vw,46px);
+    font-size:clamp(26px,6vh,44px);
     color:var(--teal-d);background:#fff;
     border:4px solid var(--teal);border-radius:20px;
-    min-height:clamp(78px,20vw,110px);
+    min-height:clamp(58px,12vh,104px);
     box-shadow:0 6px 0 #bfeee7;cursor:pointer;
     display:flex;align-items:center;justify-content:center;
     transition:transform .05s,box-shadow .05s,background .15s,border-color .15s,color .15s;
@@ -185,31 +265,52 @@
 
   /* draw (かく) mode */
   .drawprompt{
-    margin:2px 0 10px;text-align:center;
+    margin:0 0 var(--vgap);text-align:center;
     background:#fff;border:3px solid var(--coral);border-radius:16px;
-    box-shadow:0 5px 0 #f5c4b5;padding:14px 12px;
-    font-family:"Yusei Magic",sans-serif;font-size:clamp(18px,5vw,26px);color:var(--ink);
+    box-shadow:0 5px 0 #f5c4b5;padding:var(--vpad) 10px;
+    font-family:"Yusei Magic",sans-serif;font-size:clamp(14px,min(2.4vw,3.4vh),24px);color:var(--ink);
   }
   .drawprompt b{color:var(--coral-d);font-size:1.3em;margin-left:4px;}
 
   /* 大きい角（たし算の筆算） */
-  #reflexArea{margin-top:12px;display:flex;justify-content:center;}
+  #reflexArea{margin-top:var(--vgap);display:flex;justify-content:center;flex:0 0 auto;}
   .calc{
     background:#fff;border:3px solid var(--teal);border-radius:16px;
-    box-shadow:0 5px 0 #cdeee9;padding:12px 22px 12px 14px;min-width:170px;
+    box-shadow:0 5px 0 #cdeee9;padding:var(--vpad) 18px var(--vpad) 11px;min-width:160px;
   }
   .calc-row{display:flex;align-items:baseline;justify-content:flex-end;gap:8px;}
   .calc-op{
-    font-family:"Yusei Magic",sans-serif;font-size:clamp(22px,6vw,30px);
+    font-family:"Yusei Magic",sans-serif;font-size:clamp(16px,min(6vw,4vh),30px);
     color:var(--teal-d);width:24px;text-align:center;
   }
   .calc-num{
-    font-family:"Yusei Magic",sans-serif;font-size:clamp(30px,8vw,42px);
-    color:var(--ink);min-width:96px;text-align:right;letter-spacing:2px;
+    font-family:"Yusei Magic",sans-serif;font-size:clamp(18px,4.6vh,40px);
+    color:var(--ink);min-width:92px;text-align:right;letter-spacing:2px;
   }
   .calc-num.active{color:var(--coral-d);}
-  .calc-line{height:4px;background:var(--ink);border-radius:3px;margin:6px 0;}
+  .calc-line{height:4px;background:var(--ink);border-radius:3px;margin:clamp(3px,0.7vh,6px) 0;}
 
+  /* 三角定規：式の 穴うめ（テスト 大問1と 同じ かたち） */
+  #jougiEqArea{margin-top:var(--vgap);display:none;justify-content:center;flex:0 0 auto;}
+  .eq{
+    display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;
+    background:#fff;border:3px solid var(--teal);border-radius:16px;
+    box-shadow:0 5px 0 #cdeee9;padding:var(--vpad) 14px;
+  }
+  .eq-lab{font-weight:900;color:var(--teal-d);font-size:clamp(14px,3.6vw,17px);margin-right:2px;}
+  .eq-box{
+    font-family:"Yusei Magic",sans-serif;font-size:clamp(17px,min(6.5vw,4.2vh),34px);
+    color:var(--ink-soft);background:#fdfaf2;
+    border:3px dashed var(--line);border-radius:12px;
+    min-width:clamp(46px,7vw,68px);text-align:center;padding:2px 6px;
+    transition:.15s;
+  }
+  .eq-box.active{border-style:solid;border-color:var(--coral);color:var(--coral-d);background:#fff4ef;}
+  .eq-box.done{border-style:solid;border-color:var(--ok);color:var(--ok);background:#f0fbf5;}
+  .eq-op{
+    font-family:"Yusei Magic",sans-serif;font-size:clamp(16px,min(6vw,4vh),30px);
+    color:var(--teal-d);min-width:20px;text-align:center;
+  }
   button{
     font-family:"Zen Maru Gothic",sans-serif;font-weight:900;cursor:pointer;
     border:none;border-radius:16px;color:#fff;transition:transform .05s,box-shadow .05s;
@@ -220,26 +321,27 @@
     font-size:clamp(18px,5vw,24px);padding:0 22px;flex:0 0 auto;
   }
   .btn-go:active{box-shadow:0 2px 0 var(--coral-d);}
-  .row2{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
-  .btn-next{flex:1;background:var(--teal);box-shadow:0 5px 0 var(--teal-d);font-size:clamp(15px,4.2vw,20px);padding:14px;}
+  .row2{display:flex;gap:8px;margin-top:var(--vgap);flex-wrap:wrap;flex:0 0 auto;}
+  .btn-next{flex:1;background:var(--teal);box-shadow:0 5px 0 var(--teal-d);font-size:clamp(14px,2vw,19px);padding:clamp(7px,1.6vh,11px);}
   .btn-next:active{box-shadow:0 2px 0 var(--teal-d);}
-  .btn-redo{flex:0 0 auto;background:#9aa7bb;box-shadow:0 5px 0 #76839a;font-size:clamp(14px,4vw,18px);padding:14px 18px;}
+  .btn-redo{flex:0 0 auto;background:#9aa7bb;box-shadow:0 5px 0 #76839a;font-size:clamp(13px,1.8vw,17px);padding:clamp(7px,1.6vh,11px) 14px;}
   .btn-redo:active{box-shadow:0 2px 0 #76839a;}
   .btn-cfg{flex:0 0 auto;background:#fff;color:var(--ink-soft);border:3px solid var(--line);
-    box-shadow:0 5px 0 #e4dac1;font-size:18px;padding:11px 16px;}
+    box-shadow:0 5px 0 #e4dac1;font-size:17px;padding:clamp(6px,1.4vh,9px) 13px;}
   .btn-cfg:active{box-shadow:0 2px 0 #e4dac1;}
 
   .result{
-    margin-top:14px;text-align:center;font-family:"Yusei Magic",sans-serif;
-    font-size:clamp(22px,6.5vw,34px);min-height:1.2em;transition:.2s;
+    margin-top:var(--vgap);text-align:center;font-family:"Yusei Magic",sans-serif;
+    font-size:clamp(14px,4vh,30px);min-height:1.2em;transition:.2s;flex:0 0 auto;
   }
   .result.ok{color:var(--ok);}
   .result.ng{color:var(--ng);}
+  .result.two{font-size:clamp(14px,3.6vh,28px);white-space:nowrap;}   /* 51：2つの考え方は 1行に おさめて テンキーを つぶさない */
 
   /* config panel */
   .cfg{
-    margin-top:12px;background:#fff;border:3px solid var(--line);border-radius:16px;
-    padding:14px 16px;display:none;
+    margin-top:8px;background:#fff;border:3px solid var(--line);border-radius:16px;
+    padding:11px 13px;display:none;flex:0 0 auto;
   }
   .cfg.open{display:block;}
   .cfg h3{margin:0 0 6px;font-size:15px;color:var(--ink-soft);}
@@ -250,140 +352,557 @@
   .cfg .val{flex:0 0 52px;text-align:right;color:var(--teal-d);font-weight:900;}
   .cfg .checks{display:flex;gap:18px;flex-wrap:wrap;margin-top:6px;font-size:13px;font-weight:700;}
   .cfg .checks label{display:flex;align-items:center;gap:6px;cursor:pointer;}
-  .footnote{text-align:center;color:var(--ink-soft);font-size:11px;margin-top:14px;line-height:1.6;}
-  .jrow{display:flex;gap:10px;justify-content:center;margin:-2px 0 10px;flex-wrap:wrap;}
-  .jbtn{background:#9aa7bb;box-shadow:0 4px 0 #76839a;font-size:clamp(13px,3.6vw,17px);padding:11px 18px;}
+  .footnote{text-align:center;color:var(--ink-soft);font-size:10px;margin-top:8px;line-height:1.5;flex:0 0 auto;}
+  .jrow{display:flex;gap:7px;justify-content:center;margin:0;flex-wrap:wrap;}
+  #jougiCtl{margin-top:var(--vgap);flex:0 0 auto;}
+  .jbtn{background:#9aa7bb;box-shadow:0 4px 0 #76839a;font-size:clamp(11px,min(1.5vw,2.1vh),15px);padding:var(--vpad-s) 11px;}
   .jbtn:active{box-shadow:0 1px 0 #76839a;}
   .jbtn.on{background:var(--teal);box-shadow:0 4px 0 var(--teal-d);}
   .jsep{flex:0 0 auto;width:2px;align-self:stretch;background:var(--line);border-radius:2px;margin:2px 2px;}
-  .jmode{background:#b07cd6;box-shadow:0 4px 0 #8c55b8;font-size:clamp(14px,3.8vw,18px);padding:11px 15px;min-width:44px;}
+  .jmode{background:#b07cd6;box-shadow:0 4px 0 #8c55b8;font-size:clamp(12px,min(1.6vw,2.2vh),16px);padding:var(--vpad-s) 10px;min-width:38px;}
   .jmode:active{box-shadow:0 1px 0 #8c55b8;}
   .jmode.on{background:#7e3fb0;box-shadow:0 4px 0 #5b2c84;outline:3px solid #e6d3f5;}
+  /* 60：「三角定規１つだけ」は 組み合わせの ボタンと 色を かえる（さんご色） */
+  .jmode.jone{background:#f0a07a;box-shadow:0 4px 0 #d27a55;}
+  .jmode.jone:active{box-shadow:0 1px 0 #d27a55;}
+  .jmode.jone.on{background:#e0643c;box-shadow:0 4px 0 #b44a28;outline:3px solid #fbd9c9;}
+
+  /* ===== 1画面レイアウト（48で追加） =====
+     .main を 左右2カラムに する。左＝分度器（キャンバス）／右＝もんだい・テンキー。
+     --stack は JS（resize）が よむ フラグ。1＝たてに つみ上げる（せまい画面） */
+  :root{ --stack:0; }
+  .main{ display:flex; gap:12px; flex:1 1 auto; min-height:0; width:100%; }
+  .col-l{ flex:1 1 auto; display:flex; flex-direction:column; min-width:0; min-height:0; }
+  .col-r{
+    flex:0 0 clamp(268px, 36%, 440px);
+    display:flex; flex-direction:column; min-width:0; min-height:0;
+    overflow:hidden; position:relative;
+  }
+  /* こたえ欄＋テンキー：のこりの 高さを うけとって テンキーが ちぢむ（スクロールさせない） */
+  #inputArea{ flex:1 1 auto; min-height:0; flex-direction:column; }
+  #inputArea > .ansrow{ flex:0 0 auto; }
+  /* 筆算（左）＋ こたえ欄（右）。筆算が ない モードでは こたえ欄だけ 横いっぱい（50） */
+  .ansrow{ display:flex; align-items:center; gap:10px; margin-top:var(--vgap); }
+  .ansrow > #reflexArea{ margin-top:0; flex:0 0 calc((100% - 38px)/3 + 12px); }   /* テンキー 1列ぶんの はば */
+  .ansrow > .answer{ margin-top:0; flex:1 1 0; min-width:0; }
+  /* 筆算は 正方形くらいに（縦を つめる）→ テンキーが 縦に のびる（50） */
+  .ansrow .calc{ min-width:0; width:100%; box-sizing:border-box; padding:6px 14px 6px 8px; }
+  .ansrow .calc-row{ line-height:1.1; }
+  .ansrow .calc-num{ min-width:0; flex:1 1 auto; letter-spacing:1px; font-size:clamp(20px,4.8vh,42px); }
+  .ansrow .calc-op{ width:22px; font-size:clamp(18px,4vh,32px); }
+  .ansrow .calc-line{ height:4px; margin:3px 0 4px; }
+  .ansrow .answer .field{ flex:1 1 auto; min-width:0; padding-left:10px; gap:4px; }
+  .ansrow #ans{ min-width:40px; }
+  /* 「つぎの もんだい」の 行は いつも 下ぞろえ。せまい ときは 自動で つめる */
+  .col-r > .result{ margin-top:auto; }
+  /* 🔧パネルは 右カラムに かぶせて 出す（下の ボタンを おし出さない） */
+  .col-r > .cfg.open{
+    position:absolute; left:0; right:0; bottom:0; z-index:20;
+    max-height:100%; overflow-y:auto; margin:0;
+    box-shadow:0 -6px 20px rgba(80,90,120,.22);
+  }
+  .col-r > .footnote{ display:none; }   /* 2カラムでは 縦を かせぐため かくす */
+
+  /* せまい画面（スマホ縦など）は 47までと 同じ 1カラム＋スクロール */
+  @media (max-width:699px){
+    /* 61：スマホでは チャレンジを ヘッダーの 2段目に */
+    header{flex-wrap:wrap;row-gap:6px;}
+    #chal-mount{order:3;flex:1 1 100%;}
+    #chal-mount #chal-wrap{flex-wrap:nowrap;justify-content:center;gap:6px;}
+    #chal-mount .chal-btn{font-size:13px;padding:4px 10px;}
+    #chal-mount #chal-bar{padding:3px 9px;gap:6px;font-size:12px;}
+    #chal-mount #chal-dots{font-size:11px;letter-spacing:0;}
+    body #chal-result .chal-title{font-size:1.4rem;white-space:nowrap;}
+    body #chal-result .chal-card{padding:22px 20px;}
+    :root{ --stack:1; --vgap:9px; --vpad:9px; --vpad-s:6px; }
+    body{ height:auto; min-height:100vh; overflow:visible; padding:14px 12px 28px; }
+    .wrap{ height:auto; max-width:680px; display:block; }
+    .main{ display:block; }
+    .col-l,.col-r{ display:block; flex:none; overflow:visible; min-height:0; }
+    .stage{ display:block; flex:none; padding:8px; }
+    canvas{ width:100%; height:auto; max-width:none; max-height:none; }
+    h1{ font-size:clamp(20px,5.4vw,30px); }
+    .tab{ flex:1 1 30%; max-width:none; min-width:70px; padding:11px 4px; font-size:clamp(13px,3.6vw,19px); }
+    .tab .tsub{ display:block; font-size:.85em; }   /* せまい画面は （180＋○） を 2行目に（50） */
+    .gtab{ padding:11px 4px; font-size:clamp(14px,4vw,20px); }
+    .step{ padding:8px 6px; font-size:clamp(11px,3vw,14px); }
+    .guide{ margin:12px 0 6px; padding:10px 14px; font-size:clamp(14px,3.8vw,18px);
+            height:auto; overflow:visible; }
+    .choice{ min-height:clamp(78px,20vw,110px); font-size:clamp(30px,9vw,46px); }
+    .key{ min-height:clamp(48px,12vw,70px); font-size:clamp(24px,7vw,34px); }
+    .key.del,.key.ok{ font-size:clamp(22px,6vw,30px); }
+    .drawprompt{ margin:2px 0 10px; padding:14px 12px; font-size:clamp(18px,5vw,26px); }
+    .calc-num{ font-size:clamp(26px,8vw,42px); }
+    .eq-box{ font-size:clamp(24px,6.5vw,34px); }
+    .calc-op,.eq-op{ font-size:clamp(22px,6vw,30px); }
+    #ans{ font-size:clamp(26px,7vw,36px); }
+    .result{ font-size:clamp(22px,6.5vw,34px); }
+    .jbtn{ font-size:clamp(13px,3.6vw,17px); padding:11px 18px; }
+    .jmode{ font-size:clamp(14px,3.8vw,18px); padding:11px 15px; }
+    .col-r > .footnote{ display:block; margin-top:14px; }
+    .hintbtn > span{ display:inline; }
+    .hintbtn{ padding:6px 12px; font-size:14px; }
+    .col-r > .result{ margin-top:8px; }
+    .numpad{ max-height:none; grid-template-rows:none; }
+    #inputArea{ flex:none; }
+    .col-r > .cfg.open{ position:static; max-height:none; overflow:visible; margin-top:8px; box-shadow:none; }
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1><span class="pin">分度器</span>で 角を よもう</h1>
+    <h1><span class="pin">角</span>の大きさ</h1>
+    <div id="chal-mount"></div><!-- 61：10問チャレンジの ボタンと 帯 -->
     <div class="score" id="score">せいかい 0</div>
   </header>
 
-  <div class="tabs">
-    <div class="tab active" id="tabChoice"><span class="tic">🔘</span><span>選択</span></div>
-    <div class="tab" id="tabInput"><span class="tic">✏️</span><span>記入</span></div>
-    <div class="tab" id="tabEstimate"><span class="tic">👀</span><span>見つもり</span></div>
-    <div class="tab" id="tabDraw"><span class="tic">📐</span><span>かく</span></div>
-    <div class="tab" id="tabReflex"><span class="tic">🔺</span><span>大きい角</span></div>
-    <div class="tab" id="tabReflex2"><span class="tic">🔻</span><span>大きい角２</span></div>
-    <div class="tab" id="tabTri"><span class="tic">△</span><span>三角形</span></div>
-    <div class="tab" id="tabJougi"><span class="tic">◣</span><span>三角定規</span></div>
+  <!-- 親タブ（4つ）。中の 小タブは 下の 1段に 出しわけ -->
+  <div class="gtabs">
+    <div class="gtab" id="gAngle"><span class="tic">📏</span><span>角度</span></div>
+    <div class="gtab active" id="gProt"><span class="tic">🔵</span><span>分度器</span></div>
+    <div class="gtab" id="gAdv"><span class="tic">🔺</span><span>応用問題</span></div>
+    <div class="gtab" id="gTri"><span class="tic">△</span><span>三角形</span></div>
   </div>
 
-  <div class="steps" id="stepsRow">
-    <div class="step active" id="st1"><span class="num">1</span><span id="st1txt">中心を 合わせる</span></div>
-    <div class="step" id="st2"><span class="num">2</span><span id="st2txt">下の辺に 合わせる</span></div>
-    <div class="step" id="st3"><span class="num">3</span><span id="st3txt">めもりを 読む</span></div>
+  <div class="tabs" id="subTabs">
+    <!-- 角度 -->
+    <div class="tab" id="tabRight" data-g="angle" style="display:none;"><span class="tic">📐</span><span>直角・回転</span></div>
+    <div class="tab" id="tabVert"  data-g="angle" style="display:none;"><span class="tic">✖️</span><span>対頂角</span></div>
+    <!-- 分度器 -->
+    <div class="tab active" id="tabChoice" data-g="prot"><span class="tic">🔘</span><span>選択</span></div>
+    <div class="tab" id="tabInput"    data-g="prot"><span class="tic">✏️</span><span>記入</span></div>
+    <div class="tab" id="tabEstimate" data-g="prot"><span class="tic">👀</span><span>見つもり</span></div>
+    <div class="tab" id="tabDraw"     data-g="prot"><span class="tic">📐</span><span>かく</span></div>
+    <!-- 応用問題 -->
+    <div class="tab" id="tabReflex"  data-g="adv" style="display:none;"><span class="tic">🔺</span><span class="tlab">大きい角<span class="tsub">（180＋○）</span></span></div>
+    <div class="tab" id="tabReflex2" data-g="adv" style="display:none;"><span class="tic">🔻</span><span class="tlab">大きい角<span class="tsub">（360−○）</span></span></div>
+    <div class="tab" id="tabTwo"     data-g="adv" style="display:none;"><span class="tic">💡</span><span>2つの考え方</span></div>
+    <!-- 三角形 -->
+    <div class="tab" id="tabTri"   data-g="tri" style="display:none;"><span class="tic">△</span><span>三角形</span></div>
+    <div class="tab" id="tabJougi" data-g="tri" style="display:none;"><span class="tic">◣</span><span>三角定規</span></div>
   </div>
 
-  <div id="drawArea" style="display:none;">
-    <div class="drawprompt">この 角を かこう → <b id="drawTarget">70°</b></div>
-  </div>
+  <div class="main">
+    <!-- 左：分度器・図（キャンバス） -->
+    <div class="col-l">
+      <div class="steps" id="stepsRow">
+        <div class="step active" id="st1"><span class="num">1</span><span id="st1txt">中心を 合わせる</span></div>
+        <div class="step" id="st2"><span class="num">2</span><span id="st2txt">下の辺に 合わせる</span></div>
+        <div class="step" id="st3"><span class="num">3</span><span id="st3txt">めもりを 読む</span></div>
+      </div>
 
-  <div id="estArea" style="display:none;">
-    <div class="drawprompt" style="border-color:var(--coral);box-shadow:0 5px 0 #ffd9cd;">この 角は だいたい 何度？　<b>よそう</b>を 入れて「OK」だよ</div>
-  </div>
+      <div class="stage">
+        <canvas id="cv"></canvas>
+        <img id="hanamaru" alt="はなまる" class="hanamaru">
+      </div>
 
-  <div id="triArea" style="display:none;">
-    <div class="drawprompt" style="border-color:var(--teal);box-shadow:0 5px 0 #cdeee9;">三角形を かこう　<b id="triPrompt">ア=60° イ=50°</b></div>
-  </div>
+      <!-- 三角定規の そうさボタン（図を うごかす ものなので 左がわ） -->
+      <div id="jougiCtl" style="display:none;">
+        <div class="jrow">
+          <button class="jbtn" id="jougiDegBtn" style="display:none;">角度を 表示</button><!-- 60：使わない -->
+          <button class="jbtn" id="jougiEqBtn" style="display:none;">式で かく</button><!-- 60：使わない -->
+          <button class="jmode jone" id="jougiModeOne" title="三角定規 1つだけの 角">三角定規１つだけ</button>
+          <button class="jmode" id="jougiModeAdd" title="たし算の もんだい">＋</button>
+          <button class="jmode" id="jougiModeSub" title="ひき算（重なり）の もんだい">ー</button>
+          <button class="jmode" id="jougiModeRand" title="ランダムに 出題">ランダム</button>
+          <span class="jsep" id="jougiSep"></span>
+          <button class="jbtn" id="jougiSepBtn">はなす</button>
+        </div>
+      </div>
 
-  <div id="jougiArea" style="display:none;">
-    <div class="drawprompt" style="border-color:var(--teal);box-shadow:0 5px 0 #cdeee9;"><b id="jougiPrompt">あ の 角度は 何度？</b></div>
-    <div class="jrow">
-      <button class="jbtn" id="jougiDegBtn">角度を 表示</button>
-      <button class="jmode" id="jougiModeAdd" title="たし算の もんだい">＋</button>
-      <button class="jmode" id="jougiModeSub" title="ひき算（重なり）の もんだい">ー</button>
-      <button class="jmode" id="jougiModeRand" title="ランダムに 出題">ランダム</button>
-      <span class="jsep"></span>
-      <button class="jbtn" id="jougiSepBtn">はなす</button>
+      <div class="guide" id="guideBox">
+        <span class="ic" id="gic">🖐️</span>
+        <span id="guide"></span>
+        <button class="hintbtn" id="hintBtn" title="ヒントを 見る">💡<span>ヒント</span></button>
+      </div>
+
+    </div>
+
+    <!-- 右：もんだい・こたえ・テンキー -->
+    <div class="col-r">
+      <div id="drawArea" style="display:none;">
+        <div class="drawprompt">この 角を かこう → <b id="drawTarget">70°</b></div>
+      </div>
+
+      <div id="estArea" style="display:none;">
+        <div class="drawprompt" style="border-color:var(--coral);box-shadow:0 5px 0 #ffd9cd;">この 角は だいたい 何度？　<b>よそう</b>を 入れて「OK」だよ</div>
+      </div>
+
+      <div id="triArea" style="display:none;">
+        <div class="drawprompt" style="border-color:var(--teal);box-shadow:0 5px 0 #cdeee9;">三角形を かこう　<b id="triPrompt">ア=60° イ=50°</b></div>
+      </div>
+
+      <div id="jougiArea" style="display:none;">
+        <div class="drawprompt" style="border-color:var(--teal);box-shadow:0 5px 0 #cdeee9;"><b id="jougiPrompt">あ の 角度は 何度？</b></div>
+      </div>
+
+      <div id="rightArea" style="display:none;">
+        <div class="drawprompt" style="border-color:var(--teal);box-shadow:0 5px 0 #cdeee9;"><b id="rightPrompt">直角は 何度？</b></div>
+      </div>
+
+      <div id="vertArea" style="display:none;">
+        <div class="drawprompt" style="border-color:var(--teal);box-shadow:0 5px 0 #cdeee9;"><b id="vertPrompt">あ の 角度は 何度？</b></div>
+      </div>
+
+      <div id="twoArea" style="display:none;">
+        <div class="drawprompt" style="border-color:var(--teal);box-shadow:0 5px 0 #cdeee9;"><b id="twoPrompt">あ の 角度は 何度？</b></div>
+      </div>
+
+      <div id="choiceArea">
+        <div class="choices" id="choices">
+          <button class="choice" data-i="0">?°</button>
+          <button class="choice" data-i="1">?°</button>
+        </div>
+      </div>
+
+      <div id="jougiEqArea">
+        <div class="eq">
+          <span class="eq-lab">式</span>
+          <span class="eq-box" id="eqA">?</span>
+          <span class="eq-op" id="eqOp">＋</span>
+          <span class="eq-box" id="eqB">?</span>
+          <span class="eq-op">＝</span>
+          <span class="eq-box" id="eqC">?</span>
+        </div>
+      </div>
+
+      <div id="inputArea" style="display:none;">
+      <!-- 筆算（左）と こたえ欄（右）を 横に ならべる（50：テンキーを 縦に 広く） -->
+      <div class="ansrow">
+        <div id="reflexArea" style="display:none;">
+          <div class="calc">
+            <div class="calc-row"><span class="calc-op"></span><span class="calc-num" id="calcTop">180</span></div>
+            <div class="calc-row"><span class="calc-op" id="calcOp">+</span><span class="calc-num" id="calcAdd">?</span></div>
+            <div class="calc-line"></div>
+            <div class="calc-row"><span class="calc-op"></span><span class="calc-num" id="calcSum">?</span></div>
+          </div>
+        </div>
+        <div class="answer" id="ansBox">
+          <div class="field">
+            <label id="ansLabel">こたえ</label>
+            <input id="ans" type="number" inputmode="numeric" placeholder="?" min="0" max="360">
+            <span class="unit deg" id="ansUnit">°</span>
+          </div>
+        </div>
+        <div class="answer" id="exprBox">
+          <div class="field">
+            <label>しき</label>
+            <span id="exprText"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="numpad" id="numpad">
+        <button class="key op" data-op="+">＋</button>
+        <button class="key op" data-op="−">−</button>
+        <button class="key" data-d="1">1</button>
+        <button class="key" data-d="2">2</button>
+        <button class="key" data-d="3">3</button>
+        <button class="key" data-d="4">4</button>
+        <button class="key" data-d="5">5</button>
+        <button class="key" data-d="6">6</button>
+        <button class="key" data-d="7">7</button>
+        <button class="key" data-d="8">8</button>
+        <button class="key" data-d="9">9</button>
+        <button class="key del" id="npdel" aria-label="けす">⌫</button>
+        <button class="key" data-d="0">0</button>
+        <button class="key ok" id="npok">OK</button>
+      </div>
+      </div>
+
+      <div class="result" id="result"></div>
+
+      <div class="row2">
+        <button class="btn-next" id="next">▶ つぎの もんだい</button>
+        <button class="btn-redo" id="redo">やりなおす</button>
+        <button class="btn-cfg" id="cfgbtn" title="分度器の ちょうせい">🔧</button>
+      </div>
+
+      <div class="cfg" id="cfg">
+        <h3>🔧 分度器（がぞう）の ちょうせい</h3>
+        <p>がぞうの 中心（ちゅうしん）が 線の こうてんに、そこ（0°の へん）が 下の よこ線に ぴったり 合うように 調整してください。「ガイドを 表示」を ONに すると 合わせやすいです。</p>
+        <div class="ctl"><label>中心 よこ</label><input type="range" id="cx" min="0" max="100" value="50"><span class="val" id="cxv">50%</span></div>
+        <div class="ctl"><label>中心 たて</label><input type="range" id="cy" min="60" max="100" value="93"><span class="val" id="cyv">93%</span></div>
+        <div class="ctl"><label>大きさ</label><input type="range" id="rr" min="35" max="60" value="50"><span class="val" id="rrv">50%</span></div>
+        <div class="checks">
+          <label><input type="checkbox" id="flip"> 上下を ひっくりかえす</label>
+          <label><input type="checkbox" id="guideov"> ガイドを 表示</label>
+          <label><input type="checkbox" id="useimg" checked> がぞうを つかう</label>
+        </div>
+      </div>
+
+      <div class="footnote">
+        「選択」＝2つから えらぶ ／ 「記入」＝すうじを 入力 ／ 角度は 20°〜160°（5°きざみ）<br>
+        分度器の画像が ずれる ときは 🔧ボタンで 調整できます。
+      </div>
     </div>
   </div>
 
-  <div class="stage">
-    <canvas id="cv"></canvas>
-    <img id="hanamaru" alt="はなまる" class="hanamaru">
-  </div>
-
-  <div class="guide"><span class="ic" id="gic">🖐️</span><span id="guide"></span></div>
-
-  <div id="choiceArea">
-    <div class="choices" id="choices">
-      <button class="choice" data-i="0">?°</button>
-      <button class="choice" data-i="1">?°</button>
-    </div>
-  </div>
-
-  <div id="reflexArea" style="display:none;">
-    <div class="calc">
-      <div class="calc-row"><span class="calc-op"></span><span class="calc-num" id="calcTop">180</span></div>
-      <div class="calc-row"><span class="calc-op" id="calcOp">+</span><span class="calc-num" id="calcAdd">?</span></div>
-      <div class="calc-line"></div>
-      <div class="calc-row"><span class="calc-op"></span><span class="calc-num" id="calcSum">?</span></div>
-    </div>
-  </div>
-
-  <div id="inputArea" style="display:none;">
-  <div class="answer">
-    <div class="field">
-      <label id="ansLabel">こたえ</label>
-      <input id="ans" type="number" inputmode="numeric" placeholder="?" min="0" max="360">
-      <span class="unit">°</span>
-    </div>
-  </div>
-
-  <div class="numpad" id="numpad">
-    <button class="key" data-d="1">1</button>
-    <button class="key" data-d="2">2</button>
-    <button class="key" data-d="3">3</button>
-    <button class="key" data-d="4">4</button>
-    <button class="key" data-d="5">5</button>
-    <button class="key" data-d="6">6</button>
-    <button class="key" data-d="7">7</button>
-    <button class="key" data-d="8">8</button>
-    <button class="key" data-d="9">9</button>
-    <button class="key del" id="npdel" aria-label="けす">⌫</button>
-    <button class="key" data-d="0">0</button>
-    <button class="key ok" id="npok">OK</button>
-  </div>
-  </div>
-
-  <div class="result" id="result"></div>
-
-  <div class="row2">
-    <button class="btn-next" id="next">▶ つぎの もんだい</button>
-    <button class="btn-redo" id="redo">やりなおす</button>
-    <button class="btn-cfg" id="cfgbtn" title="分度器の ちょうせい">🔧</button>
-  </div>
-
-  <div class="cfg" id="cfg">
-    <h3>🔧 分度器（がぞう）の ちょうせい</h3>
-    <p>がぞうの 中心（ちゅうしん）が 線の こうてんに、そこ（0°の へん）が 下の よこ線に ぴったり 合うように 調整してください。「ガイドを 表示」を ONに すると 合わせやすいです。</p>
-    <div class="ctl"><label>中心 よこ</label><input type="range" id="cx" min="0" max="100" value="50"><span class="val" id="cxv">50%</span></div>
-    <div class="ctl"><label>中心 たて</label><input type="range" id="cy" min="60" max="100" value="93"><span class="val" id="cyv">93%</span></div>
-    <div class="ctl"><label>大きさ</label><input type="range" id="rr" min="35" max="60" value="50"><span class="val" id="rrv">50%</span></div>
-    <div class="checks">
-      <label><input type="checkbox" id="flip"> 上下を ひっくりかえす</label>
-      <label><input type="checkbox" id="guideov"> ガイドを 表示</label>
-      <label><input type="checkbox" id="useimg" checked> がぞうを つかう</label>
-    </div>
-  </div>
-
-  <div class="footnote">
-    「選択」＝2つから えらぶ ／ 「記入」＝すうじを 入力 ／ 角度は 20°〜160°（5°きざみ）<br>
-    分度器の画像が ずれる ときは 🔧ボタンで 調整できます。
-  </div>
 </div>
 
+<script>
+/* ===== 61：10問チャレンジ（challenge10.js を そのまま 入れたもの）===== */
+/* ============================================================
+   challenge10.js  —  「10問チャレンジ」だけを取り出したもの
+   ------------------------------------------------------------
+   もと：warizan81_kangae.html（小数のかけ算とわり算の筆算）⑪81
+   どんなアプリでも使えるように、CSS と HTML も中に入れてあります。
+   ほかのファイルは いりません（ライブラリなし・ネットもいらない）。
+
+   ■ 使いかた（3つ呼ぶだけ）
+     1. Challenge10.init({ mount: '#どこか', next: () => 次の問題を出す関数() })
+     2. 1問できたら          Challenge10.done()
+     3. まちがえたら          Challenge10.miss()
+
+   ■ そのほか
+     Challenge10.newProblem()  … 新しい問題を出したとき（その問題のミス数を0に）
+     Challenge10.reset()       … 数えなおす（タブを変えたときなど）
+     Challenge10.isOn()        … いまチャレンジ中か
+     Challenge10.stop()        … チャレンジをやめる
+     Challenge10.state         … {on, total, no, miss, missNow, perfect, t0}
+
+   ■ init に わたせるもの（ぜんぶ省略できます）
+     mount       ボタンを置く場所。'#id' か 要素。省略すると <body> の先頭
+     total       何問にするか（初期値 10）
+     next        次の問題を出す関数。これがないと自動で次に進みません
+     nextDelay   はなまるから次の問題までの待ち時間 ms（初期値 1800）
+     resultDelay 最後の問題から成せき表までの待ち時間 ms（初期値 1500）
+     label       ボタンの文字（初期値 '🏁 10問チャレンジ'）
+     sound       ボタンを押したとき鳴らす関数（例: () => playSound('click')）
+     onToggle    on/off が変わったとき呼ばれる関数 (on) => {}
+     onFinish    10問おわったとき呼ばれる関数 (成せき) => {}
+     record      true にすると、その日の最高記録を localStorage に残す
+     recordKey   記録の名前（アプリごとに変える。初期値 'challenge10'）
+     css         false にすると 見た目のCSSを入れない（自分で書くとき）
+   ============================================================ */
+(function (global) {
+    'use strict';
+
+    var CSS = `
+    .chal-btn {
+        font-size: 1rem; font-weight: bold; color: #6a1b9a;
+        background: #f3e5f5; border: 2px solid #ce93d8; border-radius: 20px;
+        padding: 7px 16px; box-shadow: 0 2px 0 #ce93d8; cursor: pointer;
+        font-family: inherit;
+    }
+    .chal-btn.on { color: #fff; background: #8e24aa; border-color: #6a1b9a; box-shadow: 0 2px 0 #4a148c; }
+    .chal-btn:focus-visible, .chal-btns button:focus-visible { outline: 3px solid #8e24aa; outline-offset: 2px; }
+    #chal-bar {
+        display: none; align-items: center; gap: 10px;
+        background: rgba(255,255,255,0.9); border-radius: 20px; padding: 6px 16px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        font-weight: bold; color: #6a1b9a; white-space: nowrap;
+    }
+    #chal-dots { color: #8e24aa; letter-spacing: 2px; font-size: 1.05rem; }
+    #chal-wrap { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    /* おわったときの成せき表 */
+    #chal-result {
+        display: none; position: fixed; left: 0; top: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.45); z-index: 900;
+        align-items: center; justify-content: center;
+    }
+    #chal-result.show { display: flex; }
+    .chal-card {
+        background: #fff; border-radius: 20px; padding: 28px 34px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3); text-align: center; max-width: 90vw;
+    }
+    .chal-title { font-size: 1.8rem; font-weight: bold; color: #8e24aa; margin-bottom: 14px; }
+    .chal-lines { font-size: 1.25rem; font-weight: bold; color: #333; line-height: 2; }
+    .chal-lines b { color: #e53935; font-size: 1.5rem; }
+    .chal-msg { margin-top: 10px; color: #ff6f00; }
+    .chal-best { margin-top: 6px; font-size: 1rem; color: #6a1b9a; }
+    .chal-btns { display: flex; gap: 12px; justify-content: center; margin-top: 20px; }
+    .chal-btns button {
+        padding: 12px 20px; font-size: 1.1rem; font-weight: bold; font-family: inherit;
+        border-radius: 14px; cursor: pointer; border: none;
+    }
+    #btn-chal-again { color: #fff; background: #8e24aa; box-shadow: 0 3px 0 #4a148c; }
+    #btn-chal-quit  { color: #6a1b9a; background: #f3e5f5; border: 2px solid #ce93d8; }
+    @media (prefers-reduced-motion: reduce) { .chal-btn, .chal-btns button { transition: none; } }
+    `;
+
+    var BAR_HTML =
+        '<button id="btn-challenge" class="chal-btn" type="button"></button>' +
+        '<div id="chal-bar"><span id="chal-dots"></span><span id="chal-count"></span></div>';
+
+    var RESULT_HTML =
+        '<div class="chal-card">' +
+        '  <div class="chal-title">🏁 <span id="chal-total-title"></span>問 できました！</div>' +
+        '  <div class="chal-lines" id="chal-lines"></div>' +
+        '  <div class="chal-btns">' +
+        '    <button id="btn-chal-again" type="button">もう一度チャレンジ</button>' +
+        '    <button id="btn-chal-quit" type="button">やめる</button>' +
+        '  </div>' +
+        '</div>';
+
+    var cfg = null;
+    var chal = { on: false, total: 10, no: 0, miss: 0, missNow: 0, perfect: 0, t0: 0 };
+    var $ = function (id) { return document.getElementById(id); };
+
+    // --- きょうの記録（localStorage。使えないときは だまって何もしない）---
+    function todayKey() {
+        var d = new Date();
+        return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+    }
+    function loadBest() {
+        if (!cfg.record) return null;
+        try {
+            var raw = localStorage.getItem(cfg.recordKey);
+            if (!raw) return null;
+            var o = JSON.parse(raw);
+            // その日の記録だけ／問題数がちがう記録はまぜない
+            return (o && o.day === todayKey() && o.total === chal.total) ? o : null;
+        } catch (e) { return null; }
+    }
+    function saveBest(perfect, sec) {
+        if (!cfg.record) return null;
+        var best = loadBest();
+        // ノーミスの数が多いほうが上。同じなら 時間が短いほう
+        if (best && (best.perfect > perfect || (best.perfect === perfect && best.sec <= sec))) return best;
+        var o = { day: todayKey(), perfect: perfect, sec: sec, total: chal.total };
+        try { localStorage.setItem(cfg.recordKey, JSON.stringify(o)); } catch (e) { }
+        return o;
+    }
+
+    // --- 帯（○○○●…）の書きかえ ---
+    function chalUpdateBar() {
+        $('btn-challenge').classList.toggle('on', chal.on);
+        $('chal-bar').style.display = chal.on ? 'flex' : 'none';
+        if (!chal.on) return;
+        var dots = '';
+        for (var i = 0; i < chal.total; i++) dots += (i < chal.no) ? '●' : '○';
+        $('chal-dots').innerText = dots;
+        $('chal-count').innerText = Math.min(chal.no + 1, chal.total) + '問め / ' + chal.total;
+    }
+
+    // --- はじめから数えなおす ---
+    function chalReset() {
+        chal.no = 0; chal.miss = 0; chal.missNow = 0; chal.perfect = 0; chal.t0 = Date.now();
+        $('chal-result').classList.remove('show');
+        chalUpdateBar();
+    }
+
+    // --- 1問おわったときに呼ぶ ---
+    function chalDone() {
+        if (!chal.on) return;
+        if (chal.missNow === 0) chal.perfect++;
+        chal.no++;
+        chalUpdateBar();
+        if (chal.no < chal.total) {
+            setTimeout(function () {         // つぎの問題へ
+                if (!chal.on) return;
+                chal.missNow = 0;
+                if (cfg.next) cfg.next();
+            }, cfg.nextDelay);
+            return;
+        }
+        var sec = Math.floor((Date.now() - chal.t0) / 1000);
+        var msg = (chal.perfect === chal.total) ? 'ぜんぶノーミス！ すばらしい！'
+                : (chal.perfect >= chal.total - 2) ? 'よくがんばりました！'
+                : 'つぎは もっとできる！';
+        var best = saveBest(chal.perfect, sec);
+        var result = { perfect: chal.perfect, miss: chal.miss, sec: sec, total: chal.total };
+        setTimeout(function () {
+            $('chal-total-title').innerText = chal.total;
+            $('chal-lines').innerHTML =
+                '<div>ノーミスでできた問題　<b>' + chal.perfect + '</b> / ' + chal.total + '</div>' +
+                '<div>まちがえた回数　<b>' + chal.miss + '</b> 回</div>' +
+                '<div>かかった時間　<b>' + Math.floor(sec / 60) + '</b> 分 <b>' + (sec % 60) + '</b> 秒</div>' +
+                '<div class="chal-msg">' + msg + '</div>' +
+                (best ? '<div class="chal-best">きょうの最高記録　ノーミス ' + best.perfect + ' / ' + best.total +
+                        ' 問　　' + Math.floor(best.sec / 60) + '分' + (best.sec % 60) + '秒</div>' : '');
+            $('chal-result').classList.add('show');
+            $('btn-chal-again').focus();
+            if (cfg.onFinish) cfg.onFinish(result);
+        }, cfg.resultDelay);
+    }
+
+    // --- はじめの用意 ---
+    function init(opt) {
+        opt = opt || {};
+        cfg = {
+            total: opt.total || 10,
+            next: opt.next || null,
+            nextDelay: (opt.nextDelay === undefined) ? 1800 : opt.nextDelay,
+            resultDelay: (opt.resultDelay === undefined) ? 1500 : opt.resultDelay,
+            label: opt.label || '🏁 10問チャレンジ',
+            sound: opt.sound || null,
+            onToggle: opt.onToggle || null,
+            onFinish: opt.onFinish || null,
+            record: !!opt.record,
+            recordKey: opt.recordKey || 'challenge10',
+            css: (opt.css === undefined) ? true : opt.css
+        };
+        chal.total = cfg.total;
+        if (opt.label === undefined && cfg.total !== 10) cfg.label = '🏁 ' + cfg.total + '問チャレンジ';
+
+        // CSS
+        if (cfg.css && !$('chal-style')) {
+            var st = document.createElement('style');
+            st.id = 'chal-style';
+            st.textContent = CSS;
+            document.head.appendChild(st);
+        }
+        // ボタンと帯
+        var host = (typeof opt.mount === 'string') ? document.querySelector(opt.mount) : opt.mount;
+        var wrap = $('chal-wrap');
+        if (!wrap) {
+            wrap = document.createElement('div');
+            wrap.id = 'chal-wrap';
+            wrap.innerHTML = BAR_HTML;
+            if (host) host.appendChild(wrap);
+            else document.body.insertBefore(wrap, document.body.firstChild);
+        }
+        // 成せき表
+        if (!$('chal-result')) {
+            var res = document.createElement('div');
+            res.id = 'chal-result';
+            res.innerHTML = RESULT_HTML;
+            document.body.appendChild(res);
+        }
+        $('btn-challenge').innerText = cfg.label;
+
+        $('btn-challenge').addEventListener('click', function () {
+            chal.on = !chal.on;
+            if (cfg.sound) cfg.sound();
+            chalReset();
+            if (cfg.onToggle) cfg.onToggle(chal.on);
+            if (cfg.next) cfg.next();
+        });
+        $('btn-chal-again').addEventListener('click', function () {
+            chalReset();
+            if (cfg.next) cfg.next();
+        });
+        $('btn-chal-quit').addEventListener('click', function () {
+            chal.on = false;
+            chalReset();
+            if (cfg.onToggle) cfg.onToggle(false);
+            if (cfg.next) cfg.next();
+        });
+
+        chalUpdateBar();
+        return API;
+    }
+
+    var API = {
+        init: init,
+        done: chalDone,                                        // 1問できた
+        miss: function () { if (chal.on) { chal.miss++; chal.missNow++; } },  // まちがえた
+        newProblem: function () { chal.missNow = 0; },          // 新しい問題を出した
+        reset: chalReset,                                       // 数えなおす
+        stop: function () { chal.on = false; chalReset(); },    // やめる
+        isOn: function () { return chal.on; },
+        updateBar: chalUpdateBar,
+        setTotal: function (n) { chal.total = cfg.total = n; chalReset(); },
+        state: chal
+    };
+
+    global.Challenge10 = API;
+    if (typeof module !== 'undefined' && module.exports) module.exports = API;
+})(typeof window !== 'undefined' ? window : this);
+
+</script>
 <script>
 "use strict";
 /* ======================= 設定 ======================= */
@@ -431,7 +950,7 @@ let img=null, imgReady=false, imgFailed=false;
 let answered=false;
 
 let answerMode='choice';                 // 'choice'/'input'/'draw'/'reflex'/'reflex2'/'triangle'/'jougi'（三角定規）
-let scores={ choice:0, input:0, estimate:0, draw:0, reflex:0, reflex2:0, triangle:0, jougi:0 }; // モードごとの せいかい数
+let scores={ choice:0, input:0, estimate:0, draw:0, reflex:0, reflex2:0, triangle:0, jougi:0, right:0, vert:0, two:0 }; // モードごとの せいかい数
 let estReveal=false;                      // 見つもり：ほんとうの 答えを 見せたか
 let estRevealT=0;                         // 見つもり：弧アニメの 進み（0→1）
 let estGuess=null;                        // 見つもり：子どもの よそう
@@ -469,8 +988,9 @@ let triLeftDone=false, triRightDone=false;// それぞれの辺を ひき終え�
 let triMarkTime=0;                         // 角を クリックした 時刻（線アニメ用）
 
 /* ===== 三角定規（jougi）モードの 状態 ===== */
-let jougiOp='add';                        // 'add'(たし算) / 'sub'(ひき算)
-let jougiMode='random';                   // 出題タイプ：'add' / 'sub' / 'random'
+let jougiOp='add';                        // 'add'(たし算) / 'sub'(ひき算) / 'one'(1まいの角)
+let jougiMode='random';                   // 出題タイプ：'add' / 'sub' / 'one' / 'random'
+let jougiOneType='sq60';                  // 1まいモードで つかう 定規（'sq45' / 'sq60'）
 let jougiAng1=45;                         // 三角定規1（45型）の つかう角 {45,90}
 let jougiAng2=30;                         // 三角定規2（60型）の つかう角 {30,60,90}
 let jougiTarget=75;                       // こたえ（あ／い）
@@ -479,6 +999,36 @@ let jougiSquares=[];                      // [{verts:[{x,y}*3], off:{x,y}, fill,
 let jougiVertex={x:0,y:0};                // 共有の 頂点 V（組み合わせの 中心）
 let jougiArc={from:0,to:0,letter:'あ'};   // こたえの 角の 弧（世界角）
 let jougiArcR=60;
+// 式の 穴うめ（テスト 大問1と 同じ「式・答え」の かたち）。1まいモードでは つかわない
+let jougiUseEq=true;                      // 式を つかうか（ボタンで 切りかえ）
+let jougiE1=0, jougiE2=0;                 // 式に 入る 2つの 角（sub は E1＝大きいほう）
+let jougiEqOp='＋';                       // 式の 記号
+let jougiEqV1=0, jougiEqV2=0;             // 子どもが 入れた 順に ならべた 2つの 角
+let jougiEqPhase='e1';                    // 'e1' → 'e2' → 'ans' → 'done'
+
+/* ===== 直角・回転（right）モードの 状態 ===== */
+// 「直角は 90°」「1回転は 4直角で 360°」を たしかめる もんだい
+let rightKind='deg';       // 'deg'=直角は何度？ / 'turn'=回転の角度は？
+let rightTurns=4;          // 何直角ぶん まわるか（2=半回転 / 3=3直角 / 4=1回転）
+let rightPhase='deg';      // 'ks'=何直角？ → 'deg'=何度？ → 'done'
+let rightSpin=0;           // 矢印を のばす アニメの 進み（0→1）
+
+/* ===== 対頂角（vert）モードの 状態 ===== */
+// 交わった 2本の 直線。となりの角（180−）と 向かいの角（対頂角）を もとめる
+let vertGiven=50;          // 図に 書いてある 角
+let vertTilt=0;            // 図ぜんたいの かたむき（度）
+let vertPhase='a';         // 'a'=となりの角 → 'b'=向かいの角 → 'done'
+let vertRevealA=false;     // あ の 答えを 図に 出すか
+let vertRevealB=false;     // い の 答えを 図に 出すか
+
+/* ===== 2つの考え方（two）モードの 状態 ===== */
+// 同じ 1つの 大きい角を 「180＋のこり」と「360−のこり」の 両方で もとめる（テスト 大問2と 同じ かたち）
+let twoTotal=250;          // もとめる 大きい角（あ）
+let twoRem=70;             // 半回転から の のこり（い）＝ twoTotal − 180
+let twoExpr='';           // 53：入力中の 式（数字と ＋ −）
+let twoSeq=0;             // 53：つぎの 問いへ すすむ タイマーの 取りけし用
+let twoSmall=110;          // 1回転から の のこり（う）＝ 360 − twoTotal
+let twoPhase='half';       // 'half'=180＋ → 'turn'=360− → 'done'
 // 三角定規の 画像（ブラウザ実行時に 読み込み、透明部分から 3頂点を 自動検出して 貼り付ける）
 const JOUGI_IMG_URLS = [
   ['https://raw.githubusercontent.com/byakusen/ggeoge.sankakujougi_gazou/main/sankakujougi1.png',
@@ -486,6 +1036,7 @@ const JOUGI_IMG_URLS = [
   ['https://raw.githubusercontent.com/byakusen/ggeoge.sankakujougi_gazou/main/sankakujougi2.png',
    'https://github.com/byakusen/ggeoge.sankakujougi_gazou/blob/main/sankakujougi2.png?raw=true']
 ];
+const JOUGI_FIG_H = 0.80;                 // 60：図の 高さ（問題文の 下の 高さに 対する わりあい）
 const JOUGI_SQ60_SCALE = 1.16;            // 三角定規2(30-60-90)を 少し大きく
 const JOUGI_ALPHA = 0.68;                 // 三角定規の すきとおり具合（重なった下の定規が 見えるように）
 let jougiImgs=[null,null];                // Image オブジェクト
@@ -590,8 +1141,56 @@ okSound.preload = 'auto';
 document.getElementById('hanamaru').src = HANAMARU_URL;
 document.getElementById('hanamaru').onerror = function(){ this.style.display='none'; };
 function playOk(){ try{ okSound.currentTime=0; const p=okSound.play(); if(p&&p.catch) p.catch(()=>{}); }catch(e){} }
-function showHanamaru(){ const h=document.getElementById('hanamaru'); h.classList.remove('show'); void h.offsetWidth; h.classList.add('show'); }
-function hideHanamaru(){ document.getElementById('hanamaru').classList.remove('show'); }
+/* はなまるが 出たら →（HANAMARU_SHOW_MS）→ 消す →（AUTO_NEXT_MS）→ 自動で つぎの もんだい（49） */
+const HANAMARU_SHOW_MS = 2000;   // はなまるを 見せておく 時間
+const AUTO_NEXT_MS     = 1500;   // 消えてから つぎの もんだいが 出るまでの 時間
+const NO_AUTO_NEXT_MODES = ['two'];   // 55：自動で つぎへ すすまない タブ
+let autoTimers=[];
+function clearAutoNext(){ autoTimers.forEach(clearTimeout); autoTimers=[]; }
+function showHanamaru(){
+  const h=document.getElementById('hanamaru');
+  h.classList.remove('show','fade'); void h.offsetWidth; h.classList.add('show');
+  clearAutoNext();
+  autoTimers.push(setTimeout(()=>{
+    h.classList.remove('show'); void h.offsetWidth; h.classList.add('fade');
+  }, HANAMARU_SHOW_MS));
+  if(window.Challenge10 && Challenge10.isOn()){ chalDoneOnce(); return; }   // 61：チャレンジ中は モジュールが つぎへ すすめる
+  if(NO_AUTO_NEXT_MODES.includes(answerMode)) return;   // 55：式を 見くらべる タブは 「つぎの もんだい」で すすむ
+  autoTimers.push(setTimeout(()=>{
+    autoTimers=[]; newProblem();
+  }, HANAMARU_SHOW_MS + AUTO_NEXT_MS));
+}
+/* ===== 61：10問チャレンジとの つなぎ ===== */
+let chalProbSeq=0;        // 問題を 出す・タブを かえる たびに ふえる
+let chalDoneSeq=-1;       // done() を 呼んだ 問題の 番号（1問で 2回 呼ばない）
+let chalMissAt=-1;        // まちがいを 数えた 問題の 番号と 文（同じ まちがいを かさねて 数えない）
+function chalBumpProblem(){ chalProbSeq++; }
+function chalDoneOnce(){
+  if(chalDoneSeq===chalProbSeq) return;
+  chalDoneSeq=chalProbSeq;
+  Challenge10.done();
+}
+// まちがえた ときに 呼ぶ（入力わすれは 数えない）
+function chalMiss(){
+  if(!(window.Challenge10 && Challenge10.isOn())) return;
+  if(chalDoneSeq===chalProbSeq) return;          // もう できた 問題
+  Challenge10.miss();
+}
+// まるつけの あと、結果の 文を 見て まちがいか どうかを きめる
+function chalJudge(){
+  const res=document.getElementById('result');
+  if(!res || !/\bng\b/.test(res.className)) return;
+  if(/入力/.test(res.textContent)) return;       // 「すうじを 入力してね」などは まちがいに しない
+  chalMiss();
+}
+// チャレンジが つぎの 問題を 出す（そのあいだに 自分で「つぎの もんだい」を おしていたら 出さない）
+let chalForceNext=false;  // ボタンで はじめた・やめた ときは かならず 新しい 問題に
+function chalNext(){
+  const force=chalForceNext; chalForceNext=false;
+  if(!force && chalDoneSeq!==chalProbSeq && Challenge10.isOn()) return;
+  newProblem();
+}
+function hideHanamaru(){ document.getElementById('hanamaru').classList.remove('show','fade'); }
 
 /* ======================= 角度ユーティリティ ======================= */
 const D2R = Math.PI/180;
@@ -617,12 +1216,41 @@ function ptAngle(px,py){ // Pを中心とした数学角(度,CCW)
 function layout(){
   P.x = W*0.5; P.y = H*0.66;
   R = Math.min(W*0.40, H*0.58);
+  if(answerMode==='reflex'){
+    // 50：大きい角は 分度器（R）と 大きい角の 弧・「?」（0.60R＋文字）が 頂点の 上下に 分かれる。
+    // 両方が 画面に 入るよう R を おさえ、分度器の 向きに 合わせて 頂点の 高さを かえる。
+    R = Math.min(R, (H - 46) / 1.66);
+    const pm = R*0.06 + 6;                           // 分度器の 外がわの よゆう
+    P.y = reflexTop ? (H - R - pm)                   // 分度器が 下むき → 頂点を 上へ
+                    : (R + pm);                      // 分度器が 上むき → 頂点を 下へ
+  }
   rayLen = R*1.12;
 }
+// せまい画面（1カラム＋スクロール）かどうかを CSSの --stack から よむ。
+// CSS側の @media と 条件を 二重に 書かなくて すむように、フラグを CSSから もらう。
+function isStacked(){
+  try{
+    return getComputedStyle(document.documentElement).getPropertyValue('--stack').trim()==='1';
+  }catch(e){ return false; }
+}
+const CANVAS_AR_MIN = 0.52;   // キャンバスの たて/よこ の 下限（よこ長の 限界）
+const CANVAS_AR_MAX = 1.00;   // キャンバスの たて/よこ の 上限（たて長の 限界）
 function resize(){
-  const cssW = cv.parentElement.clientWidth - 16;
-  const cssW2 = Math.max(280, cssW);
-  const cssH = Math.round(cssW2 * 0.68);
+  const box = cv.parentElement;          // .stage
+  const pad = 14;                        // .stage の 内側よはく(6px×2)＋よゆう
+  let cssW2, cssH;
+  if(isStacked()){
+    // 47までと 同じ：はばに 合わせて 0.68倍の 高さ
+    cssW2 = Math.max(280, box.clientWidth - pad);
+    cssH  = Math.round(cssW2 * 0.68);
+  }else{
+    // 2カラム：左カラムの のこり高さも つかって、はばと 高さの 両方に おさめる
+    cssW2 = Math.max(240, box.clientWidth  - pad);
+    cssH  = Math.max(180, box.clientHeight - pad);
+    const ar = cssH / cssW2;
+    if(ar > CANVAS_AR_MAX) cssH  = Math.round(cssW2 * CANVAS_AR_MAX);
+    if(ar < CANVAS_AR_MIN) cssW2 = Math.round(cssH / CANVAS_AR_MIN);
+  }
   DPR = Math.min(window.devicePixelRatio||1, 2.5);
   cv.style.width = cssW2+'px';
   cv.style.height = cssH+'px';
@@ -632,7 +1260,7 @@ function resize(){
   W=cssW2; H=cssH;
   layout();
   if(answerMode==='triangle'){ triLayout(); triPlaceP(); }
-  if(answerMode==='jougi'){ jougiBuild(); jougiUpdateSepBtn(); }
+  if(answerMode==='jougi'){ jougiBuild(); jougiUpdateSepBtn(); jougiFixBtnWidths(); }
 }
 
 /* ===== 三角形（triangle）レイアウト ===== */
@@ -670,6 +1298,9 @@ function triSetStep(step){
 
 /* ======================= もんだい生成 ======================= */
 function newProblem(){
+  clearAutoNext();
+  chalBumpProblem();                          // 61：チャレンジ用の 問題番号を すすめる                            // 自動で つぎへ の 予約を とりけし
+  hintOn=false;                               // つぎの もんだいでは ヒントを とじる
   const list=[];
   for(let a=20;a<=160;a+=5) list.push(a);
   target = list[Math.floor(Math.random()*list.length)];
@@ -701,6 +1332,7 @@ function newProblem(){
   reflexRem = rlist[Math.floor(Math.random()*rlist.length)];
   reflexTotal = 180 + reflexRem;
   reflexTop = Math.random()<0.5;            // 上に180° / 下に180° を ランダムに
+  if(answerMode==='reflex') layout();       // 分度器の 向きで 頂点の 高さが かわる（50）
   // もう一方の辺：下に180°→左上(180-rem)／上に180°→左下(180+rem)
   reflexRay2Dir = reflexTop ? (180 + reflexRem) : (180 - reflexRem);
   extended=false; reflexPhase='remain'; reflexRemDone=false;
@@ -722,7 +1354,7 @@ function newProblem(){
   if(answerMode==='reflex2'){
     rayADir = r2RayADir; rayBDir = r2RayBDir;                 // 0°ヒント等で共有
     document.getElementById('reflexArea').style.display='flex';
-    document.getElementById('inputArea').style.display='block';
+    document.getElementById('inputArea').style.display='flex';
     document.getElementById('ansLabel').textContent='のこり';
     reflex2RefreshCalc();
   }
@@ -746,29 +1378,71 @@ function newProblem(){
   {
     const op = (jougiMode==='add') ? 'add'
              : (jougiMode==='sub') ? 'sub'
+             : (jougiMode==='one') ? 'one'
              : (Math.random()<0.5 ? 'add' : 'sub');
-    const a1opt=[45,90], a2opt=[30,60,90];
-    let a,b,t;
-    do{
-      a=a1opt[Math.floor(Math.random()*a1opt.length)];
-      b=a2opt[Math.floor(Math.random()*a2opt.length)];
-      t = (op==='add') ? a+b : Math.abs(a-b);
-    } while( (op==='add' && a+b>=180) || (op==='sub' && a===b) );
-    jougiOp=op; jougiAng1=a; jougiAng2=b; jougiTarget=t;
-    document.getElementById('jougiPrompt').textContent=(op==='add'?'あ':'い')+' の 角度は 何度？';
+    if(op==='one'){
+      // 三角定規 1まいの 角（テストの 大問4と 同じ かたち）
+      const t = (Math.random()<0.4) ? 'sq45' : 'sq60';
+      const pool = (t==='sq45') ? [45,45,90] : [30,60,90];
+      const ask = pool[Math.floor(Math.random()*pool.length)];
+      jougiOneType=t; jougiOp='one'; jougiAng1=ask; jougiAng2=0; jougiTarget=ask;
+    } else {
+      const a1opt=[45,90], a2opt=[30,60,90];
+      let a,b,t;
+      do{
+        a=a1opt[Math.floor(Math.random()*a1opt.length)];
+        b=a2opt[Math.floor(Math.random()*a2opt.length)];
+        t = (op==='add') ? a+b : Math.abs(a-b);
+      } while( (op==='add' && a+b>=180) || (op==='sub' && a===b) );
+      jougiOp=op; jougiAng1=a; jougiAng2=b; jougiTarget=t;
+    }
+    // 式に 入る 2つの 角。たし算は 弧を たどる 順（sq45→sq60）、
+    // ひき算は テストと 同じく「大きいほう − 小さいほう」。
+    if(jougiOp==='add'){ jougiE1=jougiAng1; jougiE2=jougiAng2; jougiEqOp='＋'; }
+    else if(jougiOp==='sub'){ jougiE1=Math.max(jougiAng1,jougiAng2); jougiE2=Math.min(jougiAng1,jougiAng2); jougiEqOp='−'; }
+    else { jougiE1=0; jougiE2=0; jougiEqOp='＋'; }
+    jougiEqPhase='e1'; jougiEqV1=0; jougiEqV2=0;
     if(answerMode==='jougi'){
       jougiBuild();
-      document.getElementById('inputArea').style.display='block';
-      document.getElementById('ansLabel').textContent=(op==='add'?'あ':'い');
+      document.getElementById('inputArea').style.display='flex';
       document.getElementById('ans').value='';
-      jougiUpdateSepBtn();
+      jougiUpdateSepBtn(); jougiUpdateEqBtn();
     }
+    jougiApplyLabels();
+  }
+  // ===== 直角・回転（right）の もんだい =====
+  {
+    const v = rightPickVariant();          // 1直角／2直角／3直角／4直角 が 続けて 出ない
+    if(v===1){ rightKind='deg'; }          // 1直角＝「直角は 何度？」
+    else     { rightKind='turn'; rightTurns=v; }
+  }
+  rightPhase = (rightKind==='deg') ? 'deg' : 'ks';
+  rightSpin = 0;
+  if(answerMode==='right'){ rightSetup(); }
+  // ===== 対頂角（vert）の もんだい =====
+  {
+    const vlist=[];
+    for(let a=25;a<=75;a+=5) vlist.push(a);
+    vertGiven = vlist[Math.floor(Math.random()*vlist.length)];
+    vertTilt  = -14 + Math.random()*28;      // 図を すこし かたむける（見た目の へんか）
+    vertPhase='a'; vertRevealA=false; vertRevealB=false;
+    if(answerMode==='vert'){ vertSetup(); }
+  }
+  // ===== 2つの考え方（two）の もんだい =====
+  {
+    const tlist=[];
+    for(let a=200;a<=340;a+=10) tlist.push(a);   // のこりが どちらも 20〜160 に なる はんい
+    twoTotal = tlist[Math.floor(Math.random()*tlist.length)];
+    twoRem   = twoTotal - 180;
+    twoSmall = 360 - twoTotal;
+    twoPhase='half';
+    if(answerMode==='two'){ twoSetup(); }
   }
   // ===== 見つもり（estimate）の もんだい =====
   estReveal=false; estRevealT=0; estGuess=null;
   if(answerMode==='estimate'){
     document.getElementById('ansLabel').textContent='よそう';
-    document.getElementById('inputArea').style.display='block';
+    document.getElementById('inputArea').style.display='flex';
     ansEl.value='';
   }
   updateSteps();
@@ -1034,14 +1708,26 @@ function drawVertex(){
   }
 }
 
-function drawZeroHint(){
+function drawZeroHint(worldDir){
   // 辺(黒い線)がある側の「0」を 赤丸で囲む
-  const useRight = (rayADir === 0);
-  const h = useRight ? HINT.right : HINT.left;
-  const ang = (useRight ? 0 : 180) * D2R;
-  const rr  = h.r * R;
-  const hx = P.x + Math.cos(ang)*rr;
-  const hy = P.y - Math.sin(ang)*rr - R*h.yLift;
+  let hx, hy, h;
+  if(worldDir===undefined){
+    const useRight = (rayADir === 0);
+    h = useRight ? HINT.right : HINT.left;
+    const ang = (useRight ? 0 : 180) * D2R;
+    const rr  = h.r * R;
+    hx = P.x + Math.cos(ang)*rr;
+    hy = P.y - Math.sin(ang)*rr - R*h.yLift;
+  } else {
+    // 50：むき（worldDir）がわの 0 を、分度器の 向き（prot.rot）に 合わせて 囲む（大きい角で 使用）
+    const useRight = Math.abs(angDiff(worldDir, prot.rot)) < 90;
+    h = useRight ? HINT.right : HINT.left;
+    const a  = (prot.rot + (useRight ? 0 : 180)) * D2R;
+    const up = (prot.rot + 90) * D2R;
+    const rr = h.r * R;
+    hx = P.x + Math.cos(a)*rr + Math.cos(up)*R*h.yLift;
+    hy = P.y - Math.sin(a)*rr - Math.sin(up)*R*h.yLift;
+  }
   const pulse = 1 + 0.08*Math.sin(Date.now()/250);
   ctx.save();
   ctx.translate(hx,hy);
@@ -1067,6 +1753,7 @@ function render(){
         }
       }
       drawReflexTop();              // 上に薄く重ねる＋弧・ラベル・ハンドル
+      if(extended && prot.snapped && hintOn) drawZeroHint(180);   // のばした線がわの 0 を 赤丸（50）
       drawVertex();
     } else if(answerMode==='reflex2'){
       drawReflex2();                // 2本の辺・分度器・弧・ラベル
@@ -1075,6 +1762,12 @@ function render(){
       drawTriangle();               // 底辺・分度器・2辺の作図・完成
     } else if(answerMode==='jougi'){
       drawJougi();                  // 2つの三角定規の 組み合わせ
+    } else if(answerMode==='right'){
+      drawRightMode();              // 直角・回転
+    } else if(answerMode==='vert'){
+      drawVertMode();               // 対頂角・となりの角
+    } else if(answerMode==='two'){
+      drawTwoMode();                // 2つの考え方（180＋ / 360−）
     } else if(answerMode==='estimate'){
       drawEstimate();               // 見つもり：分度器なしで 角だけ 見せる
       drawVertex();
@@ -1082,20 +1775,21 @@ function render(){
       drawBaseRay(false);   // 下の線（基準の辺）
       drawProtractor();
       drawBaseRay(true);    // 上に薄く重ねる
-      if(prot.snapped) drawZeroHint();
+      if(prot.snapped && hintOn) drawZeroHint();   // 赤丸は ヒントの ときだけ（49）
       drawDrawOverlay();    // 印・線・角度（クリック後）＋まちがい演出
       drawVertex();
     } else {
       drawRays(false);     // 下の線
       drawProtractor();    // 分度器
       drawRays(true);      // 上に薄く重ねる(目もりが見えるように)
-      if(prot.snapped) drawZeroHint();   // ③のとき 辺がある側の0を赤丸
+      if(prot.snapped && hintOn) drawZeroHint();   // ③で ヒントを おしたら 辺がある側の0を赤丸（49）
       drawVertex();
     }
     if(placeFlash>0) placeFlash-=0.03;
     if(snapFlash>0)  snapFlash-=0.02;
     if(wrongFlash && wrongFlash.t>0) wrongFlash.t-=0.02;
     if(estReveal && estRevealT<1) estRevealT=Math.min(1, estRevealT+0.06);
+    if(answerMode==='right' && rightKind==='turn' && rightSpin<1) rightSpin=Math.min(1, rightSpin+0.012);
   }catch(err){
     // 1フレームで 何かあっても 画面が 固まらない（操作・吸着を 止めない）ように
     if(window.console) console.warn('描画スキップ:', err);
@@ -1139,6 +1833,23 @@ function drawReflexBase(){
   if(extended){
     const ex=rayPoint(180,rayLen);
     ctx.beginPath(); ctx.moveTo(P.x,P.y); ctx.lineTo(ex.x,ex.y); ctx.stroke();
+    drawReflexBigArc();          // のばす 前と 同じ 大きい角の 弧（分度器の 下）
+  }
+}
+/* しらべる 大きい角（>180）の 弧と「?」。
+   のばす 前も 後も 同じ 大きさ・同じ 場所に 出す（50：切りかわりの 違和感を なくす）。
+   のばした 後は 分度器の 下に かくれるよう drawReflexBase から 描く。 */
+function drawReflexBigArc(){
+  const RB = R*0.60;   // 180°の 弧（0.40）と その 文字に かさならない 半径
+  const txt = (reflexPhase==='done') ? (reflexTotal+'°') : '?';
+  if(reflexTop){
+    // 上に開く：東 → 上まわり → ray2(左下)
+    reflexArc(0, reflexRay2Dir, RB, 'rgba(232,93,59,.9)', 3.5);
+    reflexLabel(reflexRay2Dir/2, RB+18, txt, '#e85d3b');
+  } else {
+    // 下に開く：東 → 下まわり → ray2(左上)
+    reflexArc(0, reflexRay2Dir-360, RB, 'rgba(232,93,59,.9)', 3.5);
+    reflexLabel((reflexRay2Dir-360)/2, RB+18, txt, '#e85d3b');
   }
 }
 function drawReflexTop(){
@@ -1153,16 +1864,7 @@ function drawReflexTop(){
     ctx.fillStyle='#138577'; ctx.font='700 13px "Zen Maru Gothic",sans-serif';
     ctx.textAlign='center'; ctx.textBaseline='alphabetic';
     ctx.fillText('← ひっぱる', extHandle.x, extHandle.y-20);
-    // しらべる 大きい角（>180）を 弧で 示す
-    if(reflexTop){
-      // 上に開く：東 → 上まわり → ray2(左下)
-      reflexArc(0, reflexRay2Dir, R*0.50, 'rgba(232,93,59,.9)', 3.5);
-      reflexLabel(reflexRay2Dir/2, R*0.50+18, '?', '#e85d3b');
-    } else {
-      // 下に開く：東 → 下まわり → ray2(左上)
-      reflexArc(0, reflexRay2Dir-360, R*0.50, 'rgba(232,93,59,.9)', 3.5);
-      reflexLabel((reflexRay2Dir-360)/2, R*0.50+18, '?', '#e85d3b');
-    }
+    drawReflexBigArc();
   } else {
     // 辺を 薄く 上に 重ねる（分度器の上から 見えるように）
     ctx.lineCap='round'; ctx.globalAlpha=0.5;
@@ -1292,7 +1994,7 @@ function drawTriangle(){
     // 底辺を 薄く 上に 重ねて 見やすく
     ctx.globalAlpha=0.55; ctx.strokeStyle='rgba(52,70,95,.7)'; ctx.lineWidth=3;
     ctx.beginPath(); ctx.moveTo(triA.x,triA.y); ctx.lineTo(triB.x,triB.y); ctx.stroke(); ctx.globalAlpha=1;
-    if(prot.snapped) drawZeroHint();
+    if(prot.snapped && hintOn) drawZeroHint();   // 56：赤丸は ヒントの ときだけ
     if(wrongFlash && wrongFlash.t>0){
       ctx.strokeStyle='rgba(239,107,107,'+wrongFlash.t+')'; ctx.lineWidth=3;
       ctx.beginPath(); ctx.arc(wrongFlash.x,wrongFlash.y,18*(1.3-wrongFlash.t)+6,0,Math.PI*2); ctx.stroke();
@@ -1320,6 +2022,57 @@ function drawTriangle(){
 }
 
 /* ===== 三角定規（jougi）モードの 描画・計算 ===== */
+// 問う 角の 記号（たし算＝あ／ひき算＝い／1まい＝あ）
+function jougiLetter(){ return (jougiOp==='sub') ? 'い' : 'あ'; }
+// ===== 式の 穴うめ =====
+// 1まいモードは 組み合わせでは ないので 式は つかわない
+function jougiEqActive(){ return answerMode==='jougi' && jougiUseEq && jougiOp!=='one'; }
+const JEQ_ORDER=['e1','e2','ans','done'];
+function jougiEqRefresh(){
+  const area=document.getElementById('jougiEqArea'); if(!area) return;
+  const on=false;   // 58：穴うめの 式は つかわない（テンキーで 式を 入力）
+  area.style.display = on ? 'flex' : 'none';
+  if(!on) return;
+  const A=document.getElementById('eqA'), B=document.getElementById('eqB'), C=document.getElementById('eqC');
+  const O=document.getElementById('eqOp');
+  if(!A||!B||!C||!O) return;
+  O.textContent=jougiEqOp;
+  const cur=JEQ_ORDER.indexOf(jougiEqPhase);
+  A.textContent = (cur>=1) ? jougiEqV1 : '?';
+  B.textContent = (cur>=2) ? jougiEqV2 : '?';
+  C.textContent = (cur>=3) ? jougiTarget : '?';
+  [[A,0],[B,1],[C,2]].forEach(pair=>{
+    const el=pair[0], i=pair[1];
+    el.className = 'eq-box' + (cur===i ? ' active' : (cur>i ? ' done' : ''));
+  });
+}
+// いまの 段階に 合わせた 入力欄の ラベル
+function jougiAnsLabel(){
+  if(!jougiEqActive()) return 'こたえ';   // 58：あ・い は 出さない
+  if(jougiEqPhase==='e1') return '1つめ';
+  if(jougiEqPhase==='e2') return '2つめ';
+  return jougiLetter();
+}
+// 出題文・入力欄ラベル・式を まとめて そろえる（呼びわすれを ふせぐ）
+function jougiPromptText(){
+  return jougiEqActive() ? '式を 書こう' : '赤い 角の 角度は 何度？';   // 58
+}
+function jougiApplyLabels(){
+  const p=document.getElementById('jougiPrompt');
+  if(p) p.textContent = jougiPromptText();
+  // ほかの モードの ラベルを こわさない（newProblem は 全モードぶん 走るため）
+  if(answerMode==='jougi'){
+    document.getElementById('ansLabel').textContent=jougiAnsLabel();
+    twoExprMode(jougiEqActive());                // 58：式のときは ＋− つきテンキー
+    if(jougiEqPhase!=='done'){ twoExpr=''; twoRefreshExpr(); }
+  }
+  jougiEqRefresh();
+}function jougiUpdateEqBtn(){
+  const b=document.getElementById('jougiEqBtn'); if(!b) return;
+  b.style.display = 'none';   // 60：ボタンは 出さない（組み合わせは いつも 式で かく）
+  b.classList.toggle('on', jougiUseEq);
+  b.textContent = jougiUseEq ? '答えだけ' : '式で かく';
+}
 function jougiAdjEdges(type, ang){
   // 対象の角に となりあう 2辺の 長さ。
   // どちらの定規も「斜辺＝1」で そろえる（正弦定理：辺＝sin(対角)）。
@@ -1337,7 +2090,46 @@ function jougiAdjEdges(type, ang){
   e.sort((x,y)=>y-x);                     // [長い辺, 短い辺]
   return {long:e[0], short:e[1]};
 }
+// 58：ヒントの ときは 右に 見本の 三角定規を 出すので、図を 左に よせる
+function jougiRegion(){
+  // 59：ヒントの 有無で 図が 動かないよう、はじめから 見本の 左に おく
+  return (W<600 ? { cx:W*0.30, wk:0.50, sk:0.55 } : { cx:W*0.35, wk:0.50, sk:0.70 });
+}
+function jougiRebuildKeep(){
+  const sep=jougiSeparated() && jougiOp!=='one';
+  jougiBuild();
+  if(sep) jougiSquares.forEach(q=>{ q.off={ x:(q.sep?q.sep.x:0), y:(q.sep?q.sep.y:0) }; });
+  jougiUpdateSepBtn();
+}
+function drawJougiRefs(){
+  const band=canvasPromptBand(1);
+  const x0=W*(W<600?0.60:0.70), x1=W-10, y0=band+4, y1=H-10;
+  const pw=x1-x0, ph=y1-y0;
+  ctx.save();
+  ctx.fillStyle='rgba(255,248,225,.95)'; ctx.strokeStyle='#e8c56a'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x0,y0,pw,ph,14) : ctx.rect(x0,y0,pw,ph); ctx.fill(); ctx.stroke();
+  const tfs=Math.max(12, Math.min(18, pw*0.075));
+  ctx.font='900 '+tfs+'px "Yusei Magic",sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle='#9a7512'; ctx.fillText('💡 三角定規の 角', x0+pw/2, y0+tfs*0.95);
+  ctx.restore();
+  const top=y0+tfs*1.9, room=y1-top-8;
+  // 1まい目：45・45・90（直角を 左下）／2まい目：30・60・90（直角を 左下、たてが 長い）
+  // 角度の 文字は 外がわに 出るので、上下左右に その ぶんの すきまを とる
+  const lx=x0+Math.max(30, pw*0.22);
+  const LAB=22;                                     // 文字の ぶんの すきま
+  const a45=Math.max(20, Math.min(x1-lx-34, (room-LAB*3.6)/(1+0.62*1.732)));
+  const s60=a45*0.62;
+  const by1=top+LAB+a45;
+  const by2=by1+LAB*2.2+s60*1.732;
+  const mk=(type,vs)=>({ type:type, verts:vs, off:{x:0,y:0}, fill:'rgba(120,200,235,.55)' });
+  drawJougiSquare(mk('sq45',[{x:lx,y:by1},{x:lx+a45,y:by1},{x:lx,y:by1-a45}]), 'out');
+  // 2まい目は 直角を 右下に（上の 定規の 90° と 30° の 文字が かさならないように）
+  const rx=lx+(a45-s60)/2;
+  drawJougiSquare(mk('sq60',[{x:rx+s60,y:by2},{x:rx,y:by2},{x:rx+s60,y:by2-s60*1.732}]), 'out');
+}
 function jougiBuild(){
+  if(jougiOp==='one'){ jougiBuildOne(); return; }
+  const RG=jougiRegion();
   const a=jougiAng1, b=jougiAng2;
   const dir=(deg,len)=>({x:Math.cos(deg*D2R)*len, y:-Math.sin(deg*D2R)*len});
   let sqA, sqB, arcFrom, arcTo, letter;
@@ -1366,8 +2158,9 @@ function jougiBuild(){
   const pts=[]; [sqA,sqB].forEach(s=>s.verts.forEach(v=>pts.push(v)));
   let minX=1e9,maxX=-1e9,minY=1e9,maxY=-1e9;
   pts.forEach(v=>{minX=Math.min(minX,v.x);maxX=Math.max(maxX,v.x);minY=Math.min(minY,v.y);maxY=Math.max(maxY,v.y);});
-  const scale=Math.min(W*0.60/(maxX-minX), H*0.48/(maxY-minY));
-  const tx=W/2-((minX+maxX)/2)*scale, ty=H*0.46-((minY+maxY)/2)*scale;
+  const band=canvasPromptBand(1), HH=H-band;          // 57：問題文の 下に おさめる
+  const scale=Math.min(W*RG.wk/(maxX-minX), HH*JOUGI_FIG_H/(maxY-minY));   // 60：0.52→JOUGI_FIG_H
+  const tx=RG.cx-((minX+maxX)/2)*scale, ty=band+HH*0.50-((minY+maxY)/2)*scale;
   const tf=v=>({x:v.x*scale+tx, y:v.y*scale+ty});
   jougiVertex=tf({x:0,y:0});
   sqA.verts=sqA.verts.map(tf); sqB.verts=sqB.verts.map(tf);
@@ -1377,15 +2170,53 @@ function jougiBuild(){
   const V=jougiVertex;
   const cenX=s=>(s.verts[0].x+s.verts[1].x+s.verts[2].x)/3;
   if(jougiOp==='add'){
-    [sqA,sqB].forEach(s=>{ const sgn=(cenX(s) < V.x)? -1 : 1; s.sep={ x:sgn*W*0.22, y:0 }; });
+    [sqA,sqB].forEach(s=>{ const sgn=(cenX(s) < V.x)? -1 : 1; s.sep={ x:sgn*W*0.22*RG.sk, y:0 }; });
   } else {
     // 重なり：大は 左下へ、小は 右上へ はなす
-    sqA.sep={ x:-W*0.13, y: H*0.07 };   // 大（下）
-    sqB.sep={ x: W*0.15, y:-H*0.11 };   // 小（上）
+    sqA.sep={ x:-W*0.13*RG.sk, y: HH*0.08 };   // 大（下）
+    sqB.sep={ x: W*0.15*RG.sk, y:-HH*0.12 };   // 小（上）
   }
+  // 60：図を 大きくしたので、はなしたときに わくから はみ出さないよう 移動量を おさえる
+  [sqA,sqB].forEach(s=>{
+    const xs=s.verts.map(v=>v.x), ys=s.verts.map(v=>v.y), M=10;
+    const cl=(d,mn,mx)=>Math.max(mn,Math.min(mx,d));
+    s.sep.x=cl(s.sep.x, M-Math.min(...xs), W-M-Math.max(...xs));
+    s.sep.y=cl(s.sep.y, band+4-Math.min(...ys), H-M-Math.max(...ys));
+  });
   jougiSquares=[sqA,sqB];
   jougiArc={from:arcFrom, to:arcTo, letter:letter};
-  jougiArcR=Math.max(34, Math.min(80, scale*0.5));
+  jougiArcR=jougiArcRadius(scale, arcTo-arcFrom);   // 62：頂点の 近くに
+}
+// 62：赤い 弧は 頂点の 近くに 小さく（テストの 図と 同じくらい）。
+// 小さい角は 弧が 短くて 見えにくいので 少しだけ 大きく する
+const JOUGI_ARC_K = 0.11;   // 63：0.17→0.11 もっと 頂点の 近くに        // 定規の 大きさ（斜辺）に 対する 弧の 半径
+function jougiArcRadius(scale, span){
+  const k = (span<=15) ? JOUGI_ARC_K*2.3 : (span<=30) ? JOUGI_ARC_K*1.45 : (span<=45 ? JOUGI_ARC_K*1.2 : JOUGI_ARC_K);
+  return Math.max(18, Math.min(span<=15 ? 70 : 44, scale*k));
+}
+function jougiBuildOne(){
+  // 三角定規 1まい。問う角（jougiAng1）を 原点に おいて 上むきに 立てる
+  const ask=jougiAng1, type=jougiOneType;
+  const dir=(deg,len)=>({x:Math.cos(deg*D2R)*len, y:-Math.sin(deg*D2R)*len});
+  const e=jougiAdjEdges(type, ask);
+  const th0=90-ask/2;                                 // 問う角を まん中（上）に むける
+  let verts=[{x:0,y:0}, dir(th0, e.long), dir(th0+ask, e.short)];
+  if(type==='sq60') verts=verts.map(v=>({x:v.x*JOUGI_SQ60_SCALE, y:v.y*JOUGI_SQ60_SCALE}));
+  const sq={ type:type, verts:verts };
+  let minX=1e9,maxX=-1e9,minY=1e9,maxY=-1e9;
+  sq.verts.forEach(v=>{minX=Math.min(minX,v.x);maxX=Math.max(maxX,v.x);minY=Math.min(minY,v.y);maxY=Math.max(maxY,v.y);});
+  const band=canvasPromptBand(1), HH=H-band;          // 57
+  const RG=jougiRegion();
+  const scale=Math.min(W*RG.wk*0.93/(maxX-minX), HH*JOUGI_FIG_H/(maxY-minY));   // 60
+  const tx=RG.cx-((minX+maxX)/2)*scale, ty=band+HH*0.50-((minY+maxY)/2)*scale;
+  const tf=v=>({x:v.x*scale+tx, y:v.y*scale+ty});
+  jougiVertex=tf({x:0,y:0});
+  sq.verts=sq.verts.map(tf);
+  sq.off={x:0,y:0}; sq.sep={x:0,y:0};
+  sq.fill='rgba(120,200,235,.55)';
+  jougiSquares=[sq];
+  jougiArc={from:th0, to:th0+ask, letter:'あ'};
+  jougiArcR=jougiArcRadius(scale, ask);              // 62
 }
 function jougiInteriorAngle(v,i){
   const P0=v[i], P1=v[(i+1)%3], P2=v[(i+2)%3];
@@ -1393,7 +2224,7 @@ function jougiInteriorAngle(v,i){
   let d=Math.abs((a1-a2)*180/Math.PI); if(d>180) d=360-d;
   return Math.round(d/5)*5;
 }
-function drawJougiSquare(s){
+function drawJougiSquare(s, forceDeg){
   const v=s.verts.map(p=>({x:p.x+s.off.x, y:p.y+s.off.y}));
   const myAng=[0,1,2].map(i=>jougiInteriorAngle(v,i));
   const inf=jougiImgForType(s.type);
@@ -1420,15 +2251,16 @@ function drawJougiSquare(s){
     ctx.strokeStyle='#2b3a4f'; ctx.lineWidth=1.6; ctx.stroke();
   }
   ctx.globalAlpha = 1;                     // 角度ラベルなどは はっきり描く
-  if(jougiShowDeg){
+  if(jougiShowDeg || forceDeg){
     for(let i=0;i<3;i++){
       const ang=myAng[i];
       const P0=v[i], P1=v[(i+1)%3], P2=v[(i+2)%3];
       let ux=P1.x-P0.x, uy=P1.y-P0.y; const l1=Math.hypot(ux,uy)||1; ux/=l1; uy/=l1;
       let wx=P2.x-P0.x, wy=P2.y-P0.y; const l2=Math.hypot(wx,wy)||1; wx/=l2; wy/=l2;
       let bx=ux+wx, by=uy+wy; const bl=Math.hypot(bx,by)||1; bx/=bl; by/=bl;
-      const lx=P0.x+bx*26, ly=P0.y+by*26;
-      ctx.font='800 13px "Yusei Magic",sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      const out=(forceDeg==='out');            // 58：見本は 角の 外がわに 大きめに 書く
+      const lx=P0.x+bx*(out?-20:26), ly=P0.y+by*(out?-14:26);
+      ctx.font= out ? '900 15px "Yusei Magic",sans-serif' : '800 13px "Yusei Magic",sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.lineWidth=4; ctx.lineJoin='round'; ctx.strokeStyle='#fff'; ctx.strokeText(ang+'°',lx,ly);
       ctx.fillStyle='#0d6e92'; ctx.fillText(ang+'°',lx,ly);
     }
@@ -1443,24 +2275,488 @@ function jougiPointInTri(p,s){
   return !(neg&&pos);
 }
 function drawJougi(){
+  drawCanvasPrompt([jougiPromptText()], (jougiEqPhase==='done'&&jougiEqActive()) ? '#2bb673' : '#e85d3b');   // 57
+  if(hintOn) drawJougiRefs();                          // 58
   if(!jougiSquares.length) return;
-  drawJougiSquare(jougiSquares[0]);
-  drawJougiSquare(jougiSquares[1]);
-  if(!jougiSeparated()){
-    const V=jougiVertex, from=jougiArc.from, to=jougiArc.to;
+  jougiSquares.forEach(q=>drawJougiSquare(q));   // 58：forEach の 番号を forceDeg に わたさない              // 1まい・2まい どちらでも
+  const one = (jougiOp==='one');
+  if(one || !jougiSeparated()){
+    // 1まいのときは 定規を 動かしても 弧が いっしょに ついていく
+    const off = one ? jougiSquares[0].off : {x:0,y:0};
+    const V={ x:jougiVertex.x+off.x, y:jougiVertex.y+off.y };
+    const from=jougiArc.from, to=jougiArc.to;
     ctx.strokeStyle='rgba(232,93,59,.95)'; ctx.lineWidth=3.5;
     ctx.beginPath();
     const steps=Math.max(10,Math.round(Math.abs(to-from)/4));
     for(let i=0;i<=steps;i++){ const d=(from+(to-from)*(i/steps))*D2R; const x=V.x+Math.cos(d)*jougiArcR, y=V.y-Math.sin(d)*jougiArcR; if(i===0)ctx.moveTo(x,y); else ctx.lineTo(x,y); }
     ctx.stroke();
-    const md=(from+to)/2, lr=jougiArcR+18;
-    const lx=V.x+Math.cos(md*D2R)*lr, ly=V.y-Math.sin(md*D2R)*lr;
-    ctx.font='900 22px "Yusei Magic",sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.lineWidth=5; ctx.lineJoin='round'; ctx.strokeStyle='#fff'; ctx.strokeText(jougiArc.letter,lx,ly);
-    ctx.fillStyle='#e85d3b'; ctx.fillText(jougiArc.letter,lx,ly);
+    // 58：あ・い の 文字は 出さない（赤い 弧だけ）
     ctx.fillStyle='#34465f'; ctx.beginPath(); ctx.arc(V.x,V.y,4,0,Math.PI*2); ctx.fill();
     ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
   }
+}
+
+/* ===================================================================
+   直角・回転（right）モード
+   「直角は 90°」「1回転は 4直角で 360°」を たしかめる
+   =================================================================== */
+/* 出題の ふくろ：1直角・2直角・3直角・4直角を ひととおり 出してから 混ぜなおす。
+   ふくろの つぎ目でも 同じ ものが 続かないように、先頭が 前回と 同じなら 入れかえる。 */
+let rightBag = [];
+let rightLastVariant = null;
+function rightPickVariant(){
+  if(rightBag.length===0){
+    rightBag=[1,2,3,4];
+    for(let i=rightBag.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      const t=rightBag[i]; rightBag[i]=rightBag[j]; rightBag[j]=t;
+    }
+    if(rightBag[0]===rightLastVariant){
+      const t=rightBag[0]; rightBag[0]=rightBag[1]; rightBag[1]=t;
+    }
+  }
+  const v=rightBag.shift();
+  rightLastVariant=v;
+  return v;
+}
+function rightTurnName(n){
+  return (n===2) ? '半回転（2直角）' : (n===3) ? '3直角' : '1回転（4直角）';
+}
+// 「何直角？」を きく あいだは 直角の 数を 言わない 言い方に する
+function rightTurnShort(n){
+  return (n===2) ? '半回転' : (n===4) ? '1回転' : 'この 回転';
+}
+function setAnsUnit(t){
+  const u=document.getElementById('ansUnit'); if(!u) return;
+  u.textContent=t;
+  u.classList.toggle('deg', t==='°');
+}
+// いまの フェーズに 合わせて 出題文・ラベル・単位を そろえる
+function rightRefreshPrompt(){
+  const p=document.getElementById('rightPrompt');
+  const lab=document.getElementById('ansLabel');
+  if(rightKind==='deg'){
+    p.textContent='直角は 何度？';
+    lab.textContent='直角'; setAnsUnit('°');
+  } else if(rightPhase==='ks'){
+    p.textContent=rightTurnShort(rightTurns)+'は 何直角？';
+    lab.textContent='こたえ'; setAnsUnit('直角');      // 「？ 直角」と 読めるように
+  } else {
+    p.textContent=rightTurns+'直角は 何度？';
+    lab.textContent='角度'; setAnsUnit('°');
+  }
+}
+function rightSetup(){
+  rightRefreshPrompt();
+  document.getElementById('inputArea').style.display='flex';
+  ansEl.value='';
+}
+function rightArrowHead(cx,cy,dirDeg,color){
+  // 弧の 先に つける 矢じり（dirDeg＝進む むき）
+  const d=dirDeg*D2R, s=11;
+  ctx.save(); ctx.translate(cx,cy); ctx.rotate(-d);
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(-s,-s*0.55); ctx.lineTo(-s, s*0.55); ctx.closePath();
+  ctx.fillStyle=color; ctx.fill(); ctx.restore();
+}
+function rightArc(V,rad,fromDeg,toDeg,color,width){
+  ctx.strokeStyle=color; ctx.lineWidth=width; ctx.lineCap='round';
+  ctx.beginPath();
+  const steps=Math.max(12, Math.round(Math.abs(toDeg-fromDeg)/3));
+  for(let i=0;i<=steps;i++){
+    const d=(fromDeg+(toDeg-fromDeg)*(i/steps))*D2R;
+    const x=V.x+Math.cos(d)*rad, y=V.y-Math.sin(d)*rad;
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+}
+function rightMark(V,dir1,dir2,size,width,color){
+  // 直角の しるし（小さな 四角）
+  const u={x:Math.cos(dir1*D2R), y:-Math.sin(dir1*D2R)};
+  const w={x:Math.cos(dir2*D2R), y:-Math.sin(dir2*D2R)};
+  ctx.beginPath();
+  ctx.moveTo(V.x+u.x*size, V.y+u.y*size);
+  ctx.lineTo(V.x+(u.x+w.x)*size, V.y+(u.y+w.y)*size);
+  ctx.lineTo(V.x+w.x*size, V.y+w.y*size);
+  ctx.strokeStyle=color||'#e85d3b'; ctx.lineWidth=width||2.5; ctx.lineJoin='miter'; ctx.stroke();
+}
+/* 見本の 直角（もんだいの 図の 右がわ）。
+   直角マークを つけて、その 右上に 90° と 書く。
+   「直角マークが あれば 90°」と 結びつける ための ヒント。 */
+function rightSampleAngle(V, L, gapK){
+  const La = Math.max(30, Math.min(L*0.52, 78));
+  const cx = Math.min(W - La - 14, V.x + L*(gapK||1.30));   // 図に かぶらず、画面から 出ない ところ
+  const cy = V.y + La*0.5;
+  ctx.save();
+  ctx.lineCap='round'; ctx.strokeStyle='#34465f'; ctx.lineWidth=4;
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+La,cy); ctx.stroke();   // よこの へん
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx,cy-La); ctx.stroke();   // たての へん
+  rightMark({x:cx,y:cy}, 0, 90, Math.max(10, La*0.30), 3.5, '#e85d3b');
+  const fs = Math.max(13, Math.round(La*0.30));
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.font='900 '+fs+'px "Yusei Magic",sans-serif';
+  const tx = cx + La*0.62, ty = cy - La*0.62;       // 直角マークの 右上
+  ctx.lineWidth=5; ctx.lineJoin='round'; ctx.strokeStyle='#fff'; ctx.strokeText('90°',tx,ty);
+  ctx.fillStyle='#e85d3b'; ctx.fillText('90°',tx,ty);
+  ctx.restore();
+}
+function drawRightMode(){
+  const done=(rightPhase==='done');
+  if(rightKind==='deg'){
+    // ---- 直角は 何度？（テスト 大問1①と 同じ かたち） ----
+    const V={ x:W*0.34, y:H*0.72 };
+    const L=Math.min(W*0.32, H*0.46);
+    // 横の線（実線）と たての線（点線）
+    ctx.lineCap='round';
+    ctx.strokeStyle='#34465f'; ctx.lineWidth=6;
+    ctx.beginPath(); ctx.moveTo(V.x,V.y); ctx.lineTo(V.x+L*1.25, V.y); ctx.stroke();
+    ctx.save(); ctx.setLineDash([9,8]); ctx.lineWidth=4;
+    ctx.beginPath(); ctx.moveTo(V.x,V.y); ctx.lineTo(V.x, V.y-L*1.25); ctx.stroke();
+    ctx.restore();
+    rightMark(V, 0, 90, 17);
+    // ヒント中：右がわに 見本の 直角（90°）。横の線（L×1.25）より 右に 出す（50）
+    if(hintOn) rightSampleAngle(V, L, 1.50);
+    // 0°→90°の 赤い 弧と 矢じり
+    const col = done ? '#2bb673' : '#e85d3b';
+    rightArc(V, L*0.72, 0, 90, col, 4);
+    rightArrowHead(V.x+Math.cos(90*D2R)*L*0.72, V.y-Math.sin(90*D2R)*L*0.72, 180, col);
+    // ラベル
+    const lx=V.x+Math.cos(45*D2R)*L*0.98, ly=V.y-Math.sin(45*D2R)*L*0.98;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.font='900 30px "Yusei Magic",sans-serif';
+    ctx.lineWidth=6; ctx.lineJoin='round'; ctx.strokeStyle='#fff';
+    const txt = done ? '90°' : '?';
+    ctx.strokeText(txt,lx,ly); ctx.fillStyle=col; ctx.fillText(txt,lx,ly);
+  } else {
+    // ---- 回転の角度（テスト 大問1②と 同じ かたち） ----
+    const V={ x:W*0.5, y:H*0.44 };
+    const L=Math.min(W*0.26, H*0.32);
+    const span=rightTurns*90;
+    const shown=span*rightSpin;                 // アニメで だんだん まわる
+    // 直角の 区切り（うすい 点線）
+    ctx.save(); ctx.setLineDash([6,7]); ctx.strokeStyle='rgba(120,140,170,.55)'; ctx.lineWidth=2;
+    for(let k=1;k<=4;k++){
+      const d=(k*90)*D2R;
+      ctx.beginPath(); ctx.moveTo(V.x,V.y); ctx.lineTo(V.x+Math.cos(d)*L, V.y-Math.sin(d)*L); ctx.stroke();
+    }
+    ctx.restore();
+    // もとの 線（0°・太い）
+    ctx.lineCap='round'; ctx.strokeStyle='#34465f'; ctx.lineWidth=6;
+    ctx.beginPath(); ctx.moveTo(V.x,V.y); ctx.lineTo(V.x+L, V.y); ctx.stroke();
+    // まわった 先の 線
+    if(shown>1){
+      ctx.strokeStyle='rgba(52,70,95,.55)'; ctx.lineWidth=5;
+      const d=shown*D2R;
+      ctx.beginPath(); ctx.moveTo(V.x,V.y); ctx.lineTo(V.x+Math.cos(d)*L, V.y-Math.sin(d)*L); ctx.stroke();
+    }
+    // 回転を あらわす 赤い 弧
+    const col = done ? '#2bb673' : '#e85d3b';
+    const rad=L*0.66;
+    if(shown>2){
+      rightArc(V, rad, 0, shown, col, 4);
+      const hx=V.x+Math.cos(shown*D2R)*rad, hy=V.y-Math.sin(shown*D2R)*rad;
+      rightArrowHead(hx,hy, shown+90, col);
+    }
+    // ヒント中：通った 直角ごとに 赤い 直角マークを つける（いくつぶん か 目で わかる）
+    if(hintOn){
+      const ms=Math.max(11, L*0.17);
+      for(let k=1;k<=rightTurns;k++){
+        if(shown < k*90 - 1) continue;
+        rightMark(V, (k-1)*90, k*90, ms, 3.5, '#e85d3b');
+      }
+      // 見本の 直角（90°）は「何度？」の ときだけ。「何直角？」では 出さない
+      if(rightPhase!=='ks') rightSampleAngle(V, L);
+    }
+    // 通った 直角の 数を 〇で しめす
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    for(let k=1;k<=rightTurns;k++){
+      if(shown < k*90 - 1) continue;
+      const d=(k*90-45)*D2R;
+      const x=V.x+Math.cos(d)*(rad*0.62), y=V.y-Math.sin(d)*(rad*0.62);
+      ctx.beginPath(); ctx.arc(x,y,13,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,201,77,.92)'; ctx.fill();
+      ctx.strokeStyle='#d9a629'; ctx.lineWidth=2; ctx.stroke();
+      ctx.font='900 14px "Yusei Magic",sans-serif'; ctx.fillStyle='#7a5a10';
+      ctx.fillText(String(k), x, y+1);
+    }
+    // まん中の 点
+    ctx.beginPath(); ctx.arc(V.x,V.y,5,0,Math.PI*2); ctx.fillStyle='#34465f'; ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+    // ラベル
+    const lx=V.x, ly=V.y+L+24;          // 図の 下がわ（円に かぶらない ところ）
+    ctx.font='900 24px "Yusei Magic",sans-serif';
+    ctx.lineWidth=6; ctx.lineJoin='round'; ctx.strokeStyle='#fff';
+    let txt;
+    if(rightPhase==='ks')      txt='? 直角';
+    else if(rightPhase==='deg') txt=rightTurns+'直角 = ?°';
+    else                        txt=rightTurns+'直角 = '+span+'°';
+    ctx.strokeText(txt,lx,ly); ctx.fillStyle=col; ctx.fillText(txt,lx,ly);
+  }
+}
+
+/* ===================================================================
+   対頂角（vert）モード
+   交わった 2本の 直線。となりの角（180−）と 向かいの角（対頂角）
+   =================================================================== */
+// 4つの 角の むき。あたえられた角は 左・「あ」は 上・「い」は 右（テストと 同じ ならび）
+function vertDirs(){
+  const g=vertGiven;
+  const a0=180-g/2+vertTilt;      // 直線1の むき
+  return { a0:a0, b0:a0+g, g:g };
+}
+function vertSetup(){
+  document.getElementById('vertPrompt').textContent=(vertPhase==='b'?'い':'あ')+' の 角度は 何度？';
+  document.getElementById('ansLabel').textContent=(vertPhase==='b'?'い':'あ');
+  document.getElementById('inputArea').style.display='flex';
+  ansEl.value='';
+}
+function vertLabel(V,dirDeg,rad,text,color,size){
+  let x=V.x+Math.cos(dirDeg*D2R)*rad, y=V.y-Math.sin(dirDeg*D2R)*rad;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.font='900 '+size+'px "Yusei Magic",sans-serif';
+  // 画面のはしで 切れないように 内がわへ おしこむ（48：キャンバスが 正方形に 近い ときの 対策）
+  const halfW=ctx.measureText(text).width/2+5, halfH=size*0.62+5;
+  x=Math.min(Math.max(x,halfW), W-halfW);
+  y=Math.min(Math.max(y,halfH), H-halfH);
+  ctx.lineWidth=6; ctx.lineJoin='round'; ctx.strokeStyle='#fff'; ctx.strokeText(text,x,y);
+  ctx.fillStyle=color; ctx.fillText(text,x,y);
+}
+function drawVertMode(){
+  const V={ x:W*0.48, y:H*0.50 };
+  const L=Math.min(W*0.40, H*0.46);
+  const d=vertDirs(), g=d.g;
+  // ヒント中（い を 考えている とき）：向かい合った 2つの 角を 同じ 水色で ぬる
+  if(hintOn && vertPhase==='b'){
+    const rF=54;
+    [[d.a0, d.b0], [d.a0+180, d.b0+180]].forEach(([f,t])=>{
+      ctx.beginPath(); ctx.moveTo(V.x,V.y);
+      const st=Math.max(12, Math.round(Math.abs(t-f)/3));
+      for(let i=0;i<=st;i++){
+        const q=(f+(t-f)*i/st)*D2R;
+        ctx.lineTo(V.x+Math.cos(q)*rF, V.y-Math.sin(q)*rF);
+      }
+      ctx.closePath();
+      ctx.fillStyle='rgba(74,163,223,.30)'; ctx.fill();
+      rightArc(V, rF, f, t, 'rgba(46,134,200,.95)', 3);
+    });
+    // 2つを むすぶ 点線（頂点を とおって 向かい合う ことを しめす）
+    const m1=(d.a0+d.b0)/2*D2R, rr=rF+4;
+    ctx.save(); ctx.setLineDash([6,6]);
+    ctx.strokeStyle='rgba(46,134,200,.9)'; ctx.lineWidth=2.5;
+    ctx.beginPath();
+    ctx.moveTo(V.x+Math.cos(m1)*rr, V.y-Math.sin(m1)*rr);
+    ctx.lineTo(V.x-Math.cos(m1)*rr, V.y+Math.sin(m1)*rr);
+    ctx.stroke(); ctx.restore();
+  }
+  // 2本の 直線（どちらも 両がわに のびる）
+  ctx.lineCap='round'; ctx.strokeStyle='#34465f'; ctx.lineWidth=5;
+  [d.a0, d.b0].forEach(ang=>{
+    const r=ang*D2R;
+    ctx.beginPath();
+    ctx.moveTo(V.x+Math.cos(r)*L,       V.y-Math.sin(r)*L);
+    ctx.lineTo(V.x-Math.cos(r)*L,       V.y+Math.sin(r)*L);
+    ctx.stroke();
+  });
+  const rG=42, rA=56, rB=42;
+  // あたえられた角（左）
+  rightArc(V, rG, d.a0, d.b0, 'rgba(52,70,95,.75)', 3);
+  vertLabel(V, d.a0+g/2, rG+26, vertGiven+'°', '#34465f', 22);
+  // あ（上・となりの角）
+  const aFrom=d.b0+180, aTo=d.a0+360;
+  const colA = vertRevealA ? '#2bb673' : '#e85d3b';
+  rightArc(V, rA, aFrom, aTo, vertRevealA?'rgba(43,182,115,.95)':'rgba(232,93,59,.95)', 3.5);
+  vertLabel(V, (aFrom+aTo)/2, rA+24, vertRevealA ? (180-g)+'°' : 'あ', colA, vertRevealA?22:24);
+  // い（右・向かいの角＝対頂角）
+  const bFrom=d.a0+180, bTo=d.b0+180;
+  const colB = vertRevealB ? '#2bb673' : (vertPhase==='a' ? '#9aa7bb' : '#e85d3b');
+  rightArc(V, rB, bFrom, bTo, vertRevealB?'rgba(43,182,115,.95)':(vertPhase==='a'?'rgba(154,167,187,.8)':'rgba(232,93,59,.95)'), 3.5);
+  vertLabel(V, (bFrom+bTo)/2, rB+26, vertRevealB ? g+'°' : 'い', colB, vertRevealB?22:24);
+  // 交わる 点
+  ctx.beginPath(); ctx.arc(V.x,V.y,5,0,Math.PI*2); ctx.fillStyle='#34465f'; ctx.fill();
+  ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+  // 「一直線＝180°」の ヒント（あ を 考えている あいだ）
+  if(vertPhase==='a'){
+    ctx.save(); ctx.setLineDash([7,7]);
+    ctx.strokeStyle='rgba(31,174,156,.55)'; ctx.lineWidth=3;
+    const r=d.b0*D2R;
+    ctx.beginPath();
+    ctx.moveTo(V.x+Math.cos(r)*L*1.02, V.y-Math.sin(r)*L*1.02);
+    ctx.lineTo(V.x-Math.cos(r)*L*1.02, V.y+Math.sin(r)*L*1.02);
+    ctx.stroke(); ctx.restore();
+  }
+  // ヒント中：あたえられた角と あ を あわせた 180° の 点線の 半円（あ の さらに 外がわ）
+  if(hintOn && vertPhase==='a'){
+    const rH=Math.max(rA+44, Math.min(L*0.62, rA+70));
+    ctx.save(); ctx.setLineDash([8,7]);
+    rightArc(V, rH, d.b0-180, d.b0, 'rgba(19,133,119,.95)', 3);
+    ctx.restore();
+    // 両はしに 小さな 点
+    [d.b0-180, d.b0].forEach(t=>{
+      ctx.beginPath();
+      ctx.arc(V.x+Math.cos(t*D2R)*rH, V.y-Math.sin(t*D2R)*rH, 4, 0, Math.PI*2);
+      ctx.fillStyle='#138577'; ctx.fill();
+    });
+    vertLabel(V, d.b0-90, rH+20, '180°', '#138577', 22);
+  }
+}
+
+/* ===================================================================
+   2つの考え方（two）モード
+   同じ 1つの 大きい角を「180＋のこり」と「360−のこり」の 両方で もとめる
+   （テスト 大問2と 同じ かたち。分度器は つかわず 計算だけ）
+   =================================================================== */
+function twoSetup(){
+  const p=document.getElementById('twoPrompt');
+  if(twoPhase==='turn')      p.textContent='つぎは 回転（360°）の 考え方で！';
+  else if(twoPhase==='done') p.textContent='どちらの 考え方でも 同じ 答え！';
+  else                       p.textContent='あ の 角度を もとめる 式を つくろう';
+  if(twoPhase==='half') twoSeq++;            // 前の 問題の 「つぎへ」予約を 無効に
+  document.getElementById('inputArea').style.display='flex';
+  document.getElementById('reflexArea').style.display='none';   // 53：筆算は つかわない
+  twoExprMode(true);
+  ansEl.value='';
+  twoExpr='';
+  twoRefreshExpr();
+}
+// 53：式入力の 見た目に する／もどす
+function twoExprMode(on){
+  const row=document.querySelector('.ansrow'); if(row) row.classList.toggle('expr', on);
+  const np=document.getElementById('numpad');  if(np)  np.classList.toggle('ops', on);
+}
+function twoShow(t){ return t.replace(/\+/g,'＋'); }
+function twoFmt(t){ return twoShow(t).replace(/([＋−])/g,'<span class="opc">$1</span>'); }
+function twoRefreshExpr(ansShown){
+  const el=document.getElementById('exprText'); if(!el) return;
+  el.classList.toggle('done', !!ansShown);
+  if(ansShown){ el.innerHTML=twoFmt(twoExpr)+'<span class="eqans">＝'+exprAnswer()+'°</span>'; return; }
+  el.innerHTML = twoExpr ? twoFmt(twoExpr) : '<span class="ph">？</span>';
+}
+// テンキー・キーボードからの 入力（数字 / ＋ / − / けす）
+// 58：式入力を つかう ばめん（2つの考え方／三角定規の 式）
+function exprActive(){ return answerMode==='two' || jougiEqActive(); }
+function exprLocked(){
+  if(answerMode==='two') return twoPhase==='done' || twoBusy();
+  return jougiEqPhase==='done';
+}
+function exprAnswer(){ return (answerMode==='two') ? twoTotal : jougiTarget; }
+function twoKey(k){
+  if(!exprActive() || exprLocked()) return;
+  if(k==='del'){ twoExpr=twoExpr.slice(0,-1); twoRefreshExpr(); return; }
+  const last=twoExpr.slice(-1);
+  if(k==='+'||k==='−'){
+    if(twoExpr==='') return;                                  // 数字の 前には おけない
+    if(last==='+'||last==='−'){ twoExpr=twoExpr.slice(0,-1)+k; }   // つづけて おしたら 入れかえ
+    else if(/[+−]/.test(twoExpr)) return;                    // 記号は 1つだけ
+    else twoExpr+=k;
+  } else {
+    const cur=(twoExpr.match(/(\d*)$/)||['',''])[1];
+    if(cur.length>=3) return;
+    if(cur==='0') twoExpr=twoExpr.slice(0,-1);                // 先頭の 0 は 入れかえ
+    twoExpr+=k;
+  }
+  twoRefreshExpr();
+}
+let twoWaitUntil=0;
+function twoBusy(){ return performance.now() < twoWaitUntil; }
+// 51：問題文を キャンバスの 上に 描く。いちばん下の y を かえす
+function twoPromptLines(){
+  if(twoPhase==='turn') return ['つぎは 回転（360°）の 考え方で！'];
+  if(twoPhase==='done') return ['どちらの 考え方でも 同じ 答え！'];
+  return ['あ の 角度を もとめる 式を つくろう', 'まずは 半回転（180°）の 考え方で'];
+}
+function drawTwoPrompt(){ return drawCanvasPrompt(twoPromptLines(), (twoPhase==='done') ? '#2bb673' : '#e85d3b'); }
+// 57：キャンバスの 上に 問題文を 描く（2つの考え方・三角定規）。いちばん下の y を かえす
+function canvasPromptFs(){ return Math.max(15, Math.min(32, H*0.068)); }
+function canvasPromptBand(n){ return Math.max(8, H*0.025) + canvasPromptFs()*1.35*n + 6; }
+function drawCanvasPrompt(lines, col){
+  let fs=canvasPromptFs();
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  const fontOf=f=>'900 '+f+'px "Yusei Magic",sans-serif';
+  ctx.font=fontOf(fs);
+  const maxW=Math.max(...lines.map(t=>ctx.measureText(t).width));
+  const room=W*0.90;
+  if(maxW>room){ fs=Math.max(12, fs*room/maxW); ctx.font=fontOf(fs); }
+  const lh=fs*1.35, top=Math.max(8, H*0.025);
+  lines.forEach((t,i)=>{
+    const y=top+lh*(i+0.5);
+    ctx.lineWidth=6; ctx.lineJoin='round'; ctx.strokeStyle='#fff'; ctx.strokeText(t,W/2,y);
+    ctx.fillStyle=col; ctx.fillText(t,W/2,y);
+  });
+  return top+lh*lines.length;
+}
+function drawTwoMode(){
+  // 問題文は いつも 2行ぶんの 高さを とっておく（1行の ときも 図の 位置を かえない）
+  const pb=drawTwoPrompt();
+  const fs2=Math.max(12, Math.min(32, H*0.068));
+  const band=Math.max(pb, Math.max(8,H*0.025)+fs2*1.35*2) + 4;
+  // 52：左＝たし算（180＋い）、右＝ひき算（360−う）を ならべる
+  const capFs=Math.max(12, Math.min(22, H*0.045, W*0.028));
+  const capY=band + capFs*0.7;
+  const top=band + capFs*1.5;
+  // 図の はば：左右に TWO_RAY×L ずつ（半分の はばに おさめる）／たて：上に 0.76L＋文字、下に TWO_RAY×L
+  const L=Math.min((W/4 - 12)/TWO_RAY, (H-top-36)/(0.76+TWO_RAY));
+  const figH=L*(0.76+TWO_RAY) + 28;
+  const cy=top + Math.max(0, (H-top-8-figH)/2) + L*0.76 + 28;   // のこりの 高さの まん中に
+  const half=(twoPhase==='half');
+  const halfDone=!half;                     // たし算は もう 正解ずみ
+  const turnDone=(twoPhase==='done');
+  // 見出し
+  const capL=half ? '#e85d3b' : '#2bb673';
+  const capR=turnDone ? '#2bb673' : (half ? '#9aa7bb' : '#e85d3b');
+  twoCaption(W*0.25, capY, halfDone ? ('たし算　180＋'+twoRem+'＝'+twoTotal+'°') : 'たし算の 式', capL, capFs);
+  twoCaption(W*0.75, capY, turnDone ? ('ひき算　360−'+twoSmall+'＝'+twoTotal+'°') : 'ひき算の 式', capR, capFs);
+  // まん中の しきり線
+  ctx.save(); ctx.setLineDash([6,8]); ctx.strokeStyle='rgba(180,170,140,.55)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(W/2, band); ctx.lineTo(W/2, H-10); ctx.stroke(); ctx.restore();
+  drawTwoFigure({x:W*0.25, y:cy}, L, 'half', halfDone ? 'done' : 'active');
+  drawTwoFigure({x:W*0.75, y:cy}, L, 'turn', turnDone ? 'done' : (half ? 'plain' : 'active'));
+}
+const TWO_RAY = 1.02;   // 52：2つならべる ときの 辺の 長さ（L の 何倍か）
+function twoCaption(x,y,text,color,size){
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.font='900 '+size+'px "Yusei Magic",sans-serif';
+  ctx.lineWidth=5; ctx.lineJoin='round'; ctx.strokeStyle='#fff'; ctx.strokeText(text,x,y);
+  ctx.fillStyle=color; ctx.fillText(text,x,y);
+}
+// kind：'half'＝180＋い の 図／'turn'＝360−う の 図
+// state：'plain'＝角（あ）だけ／'active'＝いま とく 図／'done'＝正解ずみ（あ を 緑で 答えに）
+function drawTwoFigure(V, L, kind, state){
+  const B=twoTotal;                       // もう一方の辺の むき（0°から 反時計まわりに あ ぶん）
+  const done=(state==='done'), plain=(state==='plain');
+  // 半回転の 点線
+  if(kind==='half'){
+    ctx.save(); ctx.setLineDash([9,8]); ctx.lineCap='round';
+    ctx.strokeStyle='rgba(120,140,170,.85)'; ctx.lineWidth=4;
+    ctx.beginPath(); ctx.moveTo(V.x,V.y); ctx.lineTo(V.x-L*TWO_RAY, V.y); ctx.stroke();
+    ctx.restore();
+  }
+  // 2本の 辺
+  ctx.lineCap='round'; ctx.strokeStyle='#34465f'; ctx.lineWidth=6;
+  [0, B].forEach(dd=>{
+    const r=dd*D2R;
+    ctx.beginPath(); ctx.moveTo(V.x,V.y);
+    ctx.lineTo(V.x+Math.cos(r)*L*TWO_RAY, V.y-Math.sin(r)*L*TWO_RAY); ctx.stroke();
+  });
+  // あ の 弧（0° から 反時計まわりに B まで）
+  // 54：あ は 答えが 出たあとも オレンジの まま（どの 角を もとめたか わかるように）
+  rightArc(V, L*0.46, 0, B, 'rgba(232,93,59,.95)', 4);
+  vertLabel(V, B/2, L*0.46+24, done? ('あ '+twoTotal+'°') : 'あ', '#e85d3b', done?22:26);
+  if(!plain){
+    if(kind==='half'){
+      rightArc(V, L*0.72, 0, 180, 'rgba(31,174,156,.95)', 3.5);
+      vertLabel(V, 90, L*0.72+18, '180°', '#138577', 18);
+      rightArc(V, L*0.26, 180, B, 'rgba(31,155,214,.95)', 3.5);
+      vertLabel(V, (180+B)/2, L*0.26+22, 'い '+twoRem+'°', '#1f8fd6', 16);
+    } else {
+      rightArc(V, L*0.76, 0, 360, 'rgba(31,174,156,.9)', 3.5);
+      rightArrowHead(V.x+Math.cos(352*D2R)*L*0.76, V.y-Math.sin(352*D2R)*L*0.76, 352+90, '#138577');
+      vertLabel(V, 62, L*0.76+18, '360°', '#138577', 18);
+      rightArc(V, L*0.26, B, 360, 'rgba(31,155,214,.95)', 3.5);
+      vertLabel(V, (B+360)/2, L*0.26+22, 'う '+twoSmall+'°', '#1f8fd6', 16);
+    }
+  }
+  // まん中の 点
+  ctx.beginPath(); ctx.arc(V.x,V.y,5,0,Math.PI*2); ctx.fillStyle='#34465f'; ctx.fill();
+  ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
 }
 
 /* ===== かく（作図）モードの 描画 ===== */
@@ -1473,7 +2769,34 @@ function drawBaseRay(top){
   ctx.beginPath(); ctx.moveTo(P.x,P.y); ctx.lineTo(a.x,a.y); ctx.stroke();
   ctx.globalAlpha=1;
 }
+// テストと 同じ「どちらまわりに 角を かくか」を しめす 小さな やじるし。
+// 基準の辺（rayADir）の 根もとから、答えの辺（rayBDir）の ほうへ 少しだけ まわる。
+function drawDirArrow(){
+  const sgn = (angDiff(rayBDir, rayADir) >= 0) ? 1 : -1;   // +1=反時計まわり / -1=時計まわり
+  const rr  = Math.max(22, R*0.18);                        // 頂点の すぐ そば（答えの弧 r=34 と かさならない）
+  // 小さい角でも 答えの線を 追いこさない ように、角の 大きさに 合わせて 長さを かえる
+  const abs  = Math.abs(angDiff(rayBDir, rayADir));
+  const span = Math.min(42, Math.max(16, abs*0.55));
+  const from = rayADir + sgn*8;
+  const to   = from + sgn*span;
+  const col  = '#ff3d8b';
+  ctx.save();
+  ctx.strokeStyle=col; ctx.lineWidth=3.5; ctx.lineCap='round';
+  ctx.beginPath();
+  const steps=20;
+  for(let i=0;i<=steps;i++){
+    const d=(from+(to-from)*(i/steps))*D2R;
+    const x=P.x+Math.cos(d)*rr, y=P.y-Math.sin(d)*rr;
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+  ctx.restore();
+  // やじり（進む むき＝弧の 接線）
+  const hx=P.x+Math.cos(to*D2R)*rr, hy=P.y-Math.sin(to*D2R)*rr;
+  rightArrowHead(hx, hy, to + sgn*90, col);
+}
 function drawDrawOverlay(){
+  drawDirArrow();          // かく むきの やじるし（いつも 表示）
   if(drawMarked){
     const ang   = rayBDir;               // 正しい角度の向き
     const markPt= rayPoint(ang, R);      // 分度器の ふちに 接する 点
@@ -1545,6 +2868,7 @@ function handleDrawClick(p){
     wrongFlash={ x:p.x, y:p.y, t:1.0 };
     const res=document.getElementById('result');
     res.textContent='ちがう めもりかも。もう一度！ 🔍'; res.className='result ng';
+    chalMiss();                                   // 61
   }
 }
 function triClick(p){
@@ -1561,6 +2885,7 @@ function triClick(p){
     wrongFlash={ x:p.x, y:p.y, t:1.0 };
     const res=document.getElementById('result');
     res.textContent='ちがう めもりかも。もう一度！ 🔍'; res.className='result ng';
+    chalMiss();                                   // 61
   }
 }
 
@@ -1606,6 +2931,7 @@ cv.addEventListener('pointerdown', e=>{
     if(!prot.snapped){ const pa=ptAngle(p.x,p.y); drag={ mode:'rot', offRot:prot.rot-pa }; return; } // ③ 辺
     drag=null; return;                                   // ④⑤は テンキー入力
   }
+  if(answerMode==='right' || answerMode==='vert' || answerMode==='two'){ drag=null; return; }   // 図を 見るだけ（ドラッグなし）
   if(answerMode==='jougi'){
     for(let i=jougiSquares.length-1;i>=0;i--){
       if(jougiPointInTri(p, jougiSquares[i])){
@@ -1703,6 +3029,7 @@ function updateSteps(){
   const s1=document.getElementById('st1'), s2=document.getElementById('st2'), s3=document.getElementById('st3');
   s1.className='step'; s2.className='step'; s3.className='step';
   if(answerMode==='estimate'){ return; }   // 見つもりは ステップを 使わない
+  if(answerMode==='right' || answerMode==='vert' || answerMode==='two'){ return; }   // 直角・対頂角・2つの考え方も ステップなし
   if(answerMode==='reflex'){
     if(!extended){ s1.className='step active'; }
     else if(!prot.snapped){ s1.className='step done'; s2.className='step active'; }
@@ -1719,8 +3046,83 @@ function updateSteps(){
   else if(!prot.snapped){ s1.className='step done'; s2.className='step active'; }
   else { s1.className='step done'; s2.className='step done'; s3.className='step active'; }
 }
-function updateGuide(){
+function updateGuideText(){
   const g=document.getElementById('guide'), ic=document.getElementById('gic');
+  if(answerMode==='right'){
+    if(rightPhase==='done'){
+      ic.textContent='🎉';
+      g.innerHTML = (rightKind==='deg')
+        ? '直角は <b>90°</b>。分度器の まん中の めもりだね。「つぎの もんだい」へ！'
+        : rightTurnName(rightTurns)+' は <b>'+(rightTurns*90)+'°</b>。「つぎの もんだい」へ！';
+    } else if(rightKind==='deg'){
+      ic.textContent='📐';
+      g.innerHTML='赤い しるしは <b>直角</b>だよ。直角は 何度かな？ 入力しよう。';
+    } else if(rightPhase==='ks'){
+      ic.textContent='🔄';
+      g.innerHTML='線が まわった ようすを 見て、<b>直角（90°）が いくつぶん</b> か 数えよう。黄色い 〇が めじるし。';
+    } else {
+      ic.textContent='✖️';
+      g.innerHTML='直角 1つが 90°。<b>90 × '+rightTurns+'</b> を 計算して、角度を 入力しよう。';
+    }
+    return;
+  }
+  if(answerMode==='vert'){
+    if(vertPhase==='a'){
+      ic.textContent='➖';
+      g.innerHTML='まっすぐな 1本の線は <b>180°</b>。あ ＝ <b>180 − '+vertGiven+'</b> を 計算しよう。';
+    } else if(vertPhase==='b'){
+      ic.textContent='🔁';
+      g.innerHTML='つぎは <b>い</b>。'+vertGiven+'° と <b>向かいあって いる 角</b>だよ。大きさは どうかな？';
+    } else {
+      ic.textContent='🎉';
+      g.innerHTML='あ＝<b>'+(180-vertGiven)+'°</b>、い＝<b>'+vertGiven+'°</b>。向かいあう角は いつも 同じ！「つぎの もんだい」へ！';
+    }
+    return;
+  }
+  if(answerMode==='two'){
+    if(twoPhase==='half'){
+      ic.textContent='➖';
+      g.innerHTML='まっすぐな 線（半回転）は <b>180°</b>。<b>180°</b> と のこりの <b>い</b> を つかって、あ を もとめる 式を つくろう。';
+    } else if(twoPhase==='turn'){
+      ic.textContent='🔄';
+      g.innerHTML='こんどは 1回転の <b>360°</b>から 考えるよ。<b>360°</b> と のこりの <b>う</b> を つかって 式を つくろう。';
+    } else {
+      ic.textContent='🎉';
+      g.innerHTML='どちらの 考え方でも <b>あ ＝ '+twoTotal+'°</b>！ 「つぎの もんだい」へ！';
+    }
+    return;
+  }
+  if(answerMode==='jougi'){
+    if(jougiOp==='one'){
+      ic.textContent='◣';
+      g.innerHTML='三角定規の <b>赤い 角</b>は 何度かな？';
+      return;
+    }
+    if(!jougiEqActive()){
+      ic.textContent='◣';
+      g.innerHTML='2つの 三角定規を 組み合わせた <b>赤い 角</b>の 角度は 何度かな？ 「はなす」で ばらして 見られるよ。';
+    } else if(jougiEqPhase!=='done'){
+      ic.textContent='◣';
+      g.innerHTML='<b>赤い 角</b>は どの 角と どの 角で できて いるかな？ ＋ や − を つかって 式を 書こう。';
+    } else if(jougiEqPhase==='e1'){
+      ic.textContent='◣';
+      g.innerHTML = (jougiEqOp==='＋')
+        ? '<b>'+L+'</b> は 2つの 角を <b>たした</b> 大きさ。まず かた方の 角を 入力しよう（どちらからでも いいよ）。'
+        : '<b>'+L+'</b> は <b>ひき算</b>で もとめるよ。まず <b>大きいほうの 角</b>を 入力しよう。';
+    } else if(jougiEqPhase==='e2'){
+      ic.textContent='✏️';
+      g.innerHTML = (jougiEqOp==='＋')
+        ? 'つぎは <b>もう かた方</b>の 角だよ。「はなす」や「角度を 表示」が つかえるよ。'
+        : 'つぎは <b>ひく ほう</b>（小さいほうの 角）だよ。';
+    } else if(jougiEqPhase==='ans'){
+      ic.textContent='🧮';
+      g.innerHTML='式は <b>'+jougiEqV1+' '+jougiEqOp+' '+jougiEqV2+'</b>。計算して 答えを 入力しよう。';
+    } else {
+      ic.textContent='🎉';
+      g.innerHTML='せいかい！ '+jougiEqV1+' '+jougiEqOp+' '+jougiEqV2+' ＝ <b>'+jougiTarget+'°</b>。「つぎの もんだい」へ！';
+    }
+    return;
+  }
   if(answerMode==='estimate'){
     if(!estReveal){
       ic.textContent='🤔';
@@ -1813,7 +3215,7 @@ function updateGuide(){
         }
       } else {
         ic.textContent='✏️';
-        g.innerHTML='分度器の ふちの <b>'+target+'°</b>の めもりを さがして、そこを <b>クリック（タップ）</b>してね。';
+        g.innerHTML='<b>ピンクの やじるし</b>の ほうへ かくよ。分度器の ふちの <b>'+target+'°</b>の めもりを さがして、そこを <b>クリック（タップ）</b>してね。';
       }
     } else if(answerMode==='choice'){
       ic.textContent='👀';
@@ -1827,6 +3229,83 @@ function updateGuide(){
 
 /* ======================= こたえ判定 ======================= */
 const ansEl = document.getElementById('ans');
+
+/* ガイド文を 2行の わくに おさめる。
+   わくの 高さは CSSで 固定してあるので、はみ出す ときだけ 文字を 少し 小さくする。
+   （1行⇔2行で 上の キャンバスの 高さが 変わって 分度器が ずれるのを ふせぐ） */
+const guideBoxEl = document.getElementById('guideBox');
+function fitGuide(){
+  const g = document.getElementById('guide');
+  if(!guideBoxEl || !g) return;
+  g.style.fontSize='';                      // まず 既定の 大きさに もどす
+  if(isStacked()) return;                   // せまい画面は わくが 伸びるので 調整不要
+  let px = parseFloat(getComputedStyle(guideBoxEl).fontSize) || 16;
+  let n=0;
+  while(guideBoxEl.scrollHeight > guideBoxEl.clientHeight + 1 && px > 10 && n++ < 16){
+    px -= 0.7; g.style.fontSize = px + 'px';
+  }
+}
+/* ===== ヒント =====
+   タブごと・ばめんごとに 1つ。ガイド枠の 中に 出しかえるので 画面の 高さは 変わらない。 */
+let hintOn = false;
+function hintFor(){
+  const m = answerMode;
+  if(m==='choice' || m==='input'){
+    if(!prot.placed) return '分度器の 中心の 〇を、角の 頂点（2本の辺が 交わる 点）に かさねよう。';
+    if(!prot.snapped) return '0°の へんを かた方の 辺に そろえると、もう一方の 辺が 目もりを さすよ。';
+    return '目もりは 内がわと 外がわの 2つ。<b>赤丸の 0°から 数えた ほう</b>を 読もう。';
+  }
+  if(m==='estimate') return '';   // 見つもりは ヒントなし（50）
+  if(m==='draw'){
+    if(!prot.placed) return 'まず 分度器の 中心を、線の はし（頂点）に 合わせよう。';
+    if(!prot.snapped) return '0°の へんを 下の 線に ぴったり 重ねると、目もりが 使えるよ。';
+    return '<b>赤丸の 0°</b>から ピンクの やじるしの ほうへ 数えて、その 目もりを おそう。';
+  }
+  if(m==='reflex'){
+    if(reflexPhase==='total') return 'まっすぐな線は <b>180°</b>。それに のこりの 角を たそう。';
+    if(!prot.snapped) return 'まっすぐな線（180°）から 先の <b>のこりの 角</b>を 分度器で 読もう。';
+    return '<b>赤丸の 0°</b>から 数えて、まっすぐな線の 先の <b>のこりの 角</b>を 読もう。';
+  }
+  if(m==='reflex2') return '1回転は <b>360°</b>。360から 小さいほうの 角を ひくと もとまるよ。';
+  if(m==='two'){
+    if(twoPhase==='turn') return 'こんどは 1回転から。<b>360 − 小さい角</b> で 考えよう。';
+    return 'まっすぐな線は <b>180°</b>。<b>180 ＋ のこり</b> で もとまるよ。';
+  }
+  if(m==='triangle'){
+    if(triStep==='done') return 'ア の 角と イ の 角を それぞれ かくと、2本の 線が 交わる ところが 3つ目の 頂点。';
+    if(!prot.snapped) return '分度器の 中心を 角の 頂点に、0の 線を 底辺に 合わせよう。';
+    return '<b>赤丸の 0°</b>から 数えて、'+(triStep==='left'?triAngleL:triAngleR)+'° の めもりを さがそう。';
+  }
+  if(m==='jougi') return '右の 見本を 見よう。三角定規の 角は <b>90・45・45</b> と <b>90・60・30</b>。';
+  if(m==='right'){
+    if(rightKind==='deg') return '赤い かどの しるしが 直角。右の 見本の とおり、直角は <b>90°</b> だよ。';
+    if(rightPhase==='ks') return '赤い <b>直角の しるし</b>が いくつ あるかな。数えてみよう。';
+    return '右の 見本の とおり、しるし 1つが <b>90°</b>。<b>90 × '+rightTurns+'</b> だね。';
+  }
+  if(m==='vert'){
+    if(vertPhase==='b') return '水色の 2つの 角は <b>向かい合った 角（対頂角）</b>。<b>同じ 大きさ</b>だよ。';
+    return '点線の 半円が <b>180°</b>。'+vertGiven+'° と あ を あわせて 180° だよ。';
+  }
+  return '';
+}
+function applyHintUI(){
+  const btn=document.getElementById('hintBtn');
+  if(btn) btn.style.display = (answerMode==='estimate') ? 'none' : '';   // 見つもりは ボタンを 出さない（50）
+  if(btn) btn.classList.toggle('on', hintOn);
+  if(guideBoxEl) guideBoxEl.classList.toggle('hinting', hintOn);
+}
+function updateGuide(){
+  const t = hintOn ? hintFor() : '';
+  if(t){
+    document.getElementById('gic').textContent='💡';
+    document.getElementById('guide').innerHTML=t;
+  }else{
+    hintOn = hintOn && !!t;      // ヒントの ない ばめんでは もどす
+    updateGuideText();
+  }
+  applyHintUI();
+  fitGuide();
+}
 
 function refreshScore(){
   document.getElementById('score').textContent = 'せいかい ' + scores[answerMode];
@@ -1877,8 +3356,40 @@ function checkEstimate(){
   }
   updateGuide();
 }
-ansEl.addEventListener('keydown', e=>{ if(e.key==='Enter'){ if(answerMode==='reflex') checkReflex(); else if(answerMode==='reflex2') checkReflex2(); else if(answerMode==='jougi') checkJougi(); else if(answerMode==='estimate') checkEstimate(); else checkAnswer(); } });
-ansEl.addEventListener('input', ()=>{ if(answerMode==='reflex') reflexRefreshCalc(); else if(answerMode==='reflex2') reflex2RefreshCalc(); });
+// 「OK」や Enter を おしたときに、いまの モードの まるつけを 呼ぶ（1か所にまとめる）
+function submitAnswer(){
+  if(document.getElementById('chal-result') && document.getElementById('chal-result').classList.contains('show')) return;   // 61：成せき表の あいだは まるつけしない
+  submitAnswerInner(); chalJudge();              // 61
+}
+function submitAnswerInner(){
+  if(answerMode==='reflex')        checkReflex();
+  else if(answerMode==='reflex2')  checkReflex2();
+  else if(answerMode==='jougi')    checkJougi();
+  else if(answerMode==='estimate') checkEstimate();
+  else if(answerMode==='right')    checkRight();
+  else if(answerMode==='vert')     checkVert();
+  else if(answerMode==='two')      checkTwo();
+  else                             checkAnswer();
+}
+// 入力するたびに 筆算の 表示を 更新する モード
+function refreshCalcForMode(){
+  if(answerMode==='reflex')       reflexRefreshCalc();
+  else if(answerMode==='reflex2') reflex2RefreshCalc();
+}
+ansEl.addEventListener('keydown', e=>{ if(e.key==='Enter'){ submitAnswer(); } });
+// 53：2つの考え方は キーボードでも 式を 入力できる
+document.addEventListener('keydown', e=>{
+  if(!exprActive()) return;
+  const t=e.target; if(t && (t.tagName==='INPUT'&&t!==ansEl)) return;
+  let k=null;
+  if(/^[0-9]$/.test(e.key)) k=e.key;
+  else if(e.key==='+') k='+';
+  else if(e.key==='-'||e.key==='−') k='−';
+  else if(e.key==='Backspace') k='del';
+  else if(e.key==='Enter'){ e.preventDefault(); submitAnswer(); return; }
+  if(k){ e.preventDefault(); twoKey(k); }
+});
+ansEl.addEventListener('input', refreshCalcForMode);
 
 /* ===== 大きい角（reflex）モード ===== */
 function reflexOnExtended(){
@@ -1890,7 +3401,7 @@ function reflexOnExtended(){
   ansEl.value='';
   document.getElementById('ansLabel').textContent='のこり';
   document.getElementById('reflexArea').style.display='flex';
-  document.getElementById('inputArea').style.display='block';
+  document.getElementById('inputArea').style.display='flex';
   reflexRefreshCalc();
   placeFlash=1.0;
   updateSteps(); updateGuide();
@@ -1980,19 +3491,216 @@ function checkReflex2(){
 
 /* ===== 三角定規（jougi）モード ===== */
 function checkJougi(){
+  const res=document.getElementById('result');
+  if(jougiEqActive()){ checkJougiExpr(); return; }
+  const v=parseInt(ansEl.value,10);
+  hideHanamaru();
+  if(isNaN(v)){ res.textContent='すうじを 入力してね'; res.className='result ng'; return; }
+  if(!jougiEqActive()){
+    // 答えだけ（1まいモード・式オフのとき）
+    if(v===jougiTarget){
+      res.textContent='せいかい！ 🎉'; res.className='result ok';
+      markCorrect();
+    } else {
+      res.textContent='もう一度 考えてみよう 🔍'; res.className='result ng';
+    }
+    updateGuide(); return;
+  }
+  if(jougiEqPhase==='e1'){
+    // たし算は どちらの 角から 書いても よい／ひき算は 大きいほうが さき
+    const ok = (jougiEqOp==='＋') ? (v===jougiE1 || v===jougiE2) : (v===jougiE1);
+    if(ok){
+      jougiEqV1=v;
+      jougiEqV2 = (jougiEqOp==='＋') ? ((v===jougiE1) ? jougiE2 : jougiE1) : jougiE2;
+      jougiEqPhase='e2'; playOk();
+      res.textContent='いいね！ つぎの 角だよ'; res.className='result ok';
+      ansEl.value=''; jougiApplyLabels();
+    } else if(jougiEqOp==='−' && v===jougiE2){
+      res.innerHTML='おしい！ ひき算は <b>大きいほうの 角</b>から 書くよ 🔄'; res.className='result ng';
+    } else {
+      res.textContent='その 角の 大きさを もう一度 見てみよう 🔍'; res.className='result ng';
+    }
+  } else if(jougiEqPhase==='e2'){
+    if(v===jougiEqV2){
+      jougiEqPhase='ans'; playOk();
+      res.innerHTML='式が できたね！ <b>'+jougiEqV1+' '+jougiEqOp+' '+jougiEqV2+'</b> を 計算しよう';
+      res.className='result ok';
+      ansEl.value=''; jougiApplyLabels();
+    } else {
+      res.textContent='もう かた方の 角を よく 見てみよう 🔍'; res.className='result ng';
+    }
+  } else if(jougiEqPhase==='ans'){
+    if(v===jougiTarget){
+      jougiEqPhase='done';
+      res.innerHTML='せいかい！ '+jougiEqV1+' '+jougiEqOp+' '+jougiEqV2+' ＝ <b>'+jougiTarget+'°</b> 🎉';
+      res.className='result ok';
+      jougiEqRefresh();
+      markCorrect();
+    } else {
+      res.innerHTML='計算を もう一度！ <b>'+jougiEqV1+' '+jougiEqOp+' '+jougiEqV2+'</b> 🔍';
+      res.className='result ng';
+    }
+  }
+  updateGuide();
+}
+
+// 58：三角定規の 式（テンキーで 入力）。できたら 答えを 自動で 出す
+function checkJougiExpr(){
+  const res=document.getElementById('result');
+  if(jougiEqPhase==='done') return;
+  hideHanamaru();
+  const m=twoExpr.match(/^(\d+)([+−])(\d+)$/);
+  if(!m){
+    res.textContent = twoExpr ? '式を さいごまで 入力してね' : '式を 入力してね';
+    res.className='result ng two'; return;
+  }
+  const x=+m[1], op=m[2], y=+m[3];
+  const add=(jougiEqOp==='＋');
+  let ok;
+  if(add) ok = op==='+' && ((x===jougiE1&&y===jougiE2)||(x===jougiE2&&y===jougiE1));
+  else    ok = op==='−' && x===jougiE1 && y===jougiE2;
+  if(!ok){
+    if(!add && op==='−' && x===jougiE2 && y===jougiE1) res.innerHTML='おしい！ ひき算は <b>大きいほうの 角</b>から';
+    else if((add && op==='−') || (!add && op==='+'))    res.innerHTML='もう一度！ <b>たし算</b>かな？ <b>ひき算</b>かな？';
+    else                                                res.innerHTML='もう一度！ 角の 大きさを 見てみよう';
+    res.className='result ng two';
+    updateGuide(); return;
+  }
+  jougiEqV1=x; jougiEqV2=y; jougiEqPhase='done';
+  twoRefreshExpr(true);
+  res.innerHTML='せいかい！ <b>'+twoShow(twoExpr)+'＝'+jougiTarget+'°</b> 🎉';
+  res.className='result ok two';
+  markCorrect();
+  updateGuide();
+}
+
+/* ===== 直角・回転（right）モードの まるつけ ===== */
+function checkRight(){
   const v=parseInt(ansEl.value,10);
   const res=document.getElementById('result');
   hideHanamaru();
   if(isNaN(v)){ res.textContent='すうじを 入力してね'; res.className='result ng'; return; }
-  if(v===jougiTarget){
-    res.textContent='せいかい！ 🎉'; res.className='result ok';
-    markCorrect();
+  if(rightKind==='deg'){
+    if(v===90){
+      res.innerHTML='せいかい！ 直角は <b>90°</b> 🎉'; res.className='result ok';
+      rightPhase='done'; markCorrect();
+    } else {
+      res.textContent='おしい！ 分度器の まん中の めもりを 思い出そう 🔍'; res.className='result ng';
+    }
+    updateGuide(); return;
+  }
+  if(rightPhase==='ks'){
+    if(v===rightTurns){
+      res.innerHTML='そのとおり！ <b>'+rightTurns+'直角</b>だね。つぎは 何度か 考えよう'; res.className='result ok';
+      rightPhase='deg'; playOk();
+      hintOn=false;                  // 「何度？」は ヒントを とじた 状態で はじめる（50）
+      rightRefreshPrompt();          // 出題文も 「X直角は 何度？」に 切りかえる
+      ansEl.value='';
+    } else {
+      res.textContent='直角（90°）が いくつぶん かな？ 〇の しるしを 数えてみよう 🔍'; res.className='result ng';
+    }
+  } else if(rightPhase==='deg'){
+    const ans=rightTurns*90;
+    if(v===ans){
+      res.innerHTML='せいかい！ '+rightTurnName(rightTurns)+' は <b>'+ans+'°</b> 🎉'; res.className='result ok';
+      rightPhase='done'; markCorrect();
+    } else {
+      res.innerHTML='もう一度！ <b>90 × '+rightTurns+'</b> を 計算してみよう 🔍'; res.className='result ng';
+    }
+  }
+  updateGuide();
+}
+
+/* ===== 対頂角（vert）モードの まるつけ ===== */
+function checkVert(){
+  const v=parseInt(ansEl.value,10);
+  const res=document.getElementById('result');
+  hideHanamaru();
+  if(isNaN(v)){ res.textContent='すうじを 入力してね'; res.className='result ng'; return; }
+  if(vertPhase==='a'){
+    const ans=180-vertGiven;
+    if(v===ans){
+      vertRevealA=true; vertPhase='b'; playOk();
+      res.innerHTML='せいかい！ あ ＝ 180 − '+vertGiven+' ＝ <b>'+ans+'°</b>。つぎは い だよ'; res.className='result ok';
+      document.getElementById('vertPrompt').textContent='い の 角度は 何度？';
+      document.getElementById('ansLabel').textContent='い';
+      ansEl.value='';
+    } else {
+      res.innerHTML='もう一度！ 一直線は <b>180°</b>。180 − '+vertGiven+' を 計算しよう 🔍'; res.className='result ng';
+    }
+  } else if(vertPhase==='b'){
+    if(v===vertGiven){
+      vertRevealB=true; vertPhase='done';
+      res.innerHTML='せいかい！ 向かいあう角（対頂角）は 同じ 大きさ。い ＝ <b>'+vertGiven+'°</b> 🎉'; res.className='result ok';
+      markCorrect();
+    } else {
+      res.textContent='い は '+vertGiven+'° と 向かいあう角だよ。よく 見てみよう 🔍'; res.className='result ng';
+    }
+  }
+  updateGuide();
+}
+/* ===== 2つの考え方（two）モードの まるつけ ===== */
+function checkTwo(){
+  const res=document.getElementById('result');
+  if(twoPhase==='done' || twoBusy()) return;
+  hideHanamaru();
+  const m=twoExpr.match(/^(\d+)([+−])(\d+)$/);
+  if(!m){
+    res.textContent = twoExpr ? '式を さいごまで 入力してね' : '式を 入力してね';
+    res.className='result ng two'; return;
+  }
+  const x=+m[1], op=m[2], y=+m[3];
+  let ok;
+  if(twoPhase==='half') ok = (op==='+') && ((x===180&&y===twoRem) || (x===twoRem&&y===180));
+  else                  ok = (op==='−') && (x===360&&y===twoSmall);
+  if(!ok){
+    res.innerHTML = (twoPhase==='half')
+      ? 'もう一度！ <b>180</b> と <b>い</b> で 式を つくろう'
+      : 'もう一度！ <b>360</b> と <b>う</b> で 式を つくろう';
+    res.className='result ng two';
+    updateGuide();
+    return;
+  }
+  // 正解：式の うしろに 答えを 自動で 出す
+  twoRefreshExpr(true);
+  res.innerHTML='せいかい！ <b>'+twoShow(twoExpr)+'＝'+twoTotal+'°</b>'+(twoPhase==='turn'?' 🎉':'');
+  res.className='result ok two';
+  if(twoPhase==='half'){
+    twoPhase='turn'; playOk();
+    twoWaitUntil=performance.now()+1400;       // 答えを 少し 見せてから つぎの 式へ
+    const seq=twoSeq;
+    setTimeout(()=>{
+      if(answerMode!=='two' || seq!==twoSeq || twoPhase!=='turn') return;
+      twoExpr=''; twoRefreshExpr();
+      document.getElementById('twoPrompt').textContent='つぎは 回転（360°）の 考え方で！';
+      updateGuide();
+    }, 1400);
+    // 図は すぐに ひき算の ばめんへ（左の 見出しに 答えが 出る）
   } else {
-    res.textContent='もう一度 考えてみよう 🔍'; res.className='result ng';
+    twoPhase='done';
+    document.getElementById('twoPrompt').textContent='どちらの 考え方でも 同じ 答え！';
+    markCorrect();
+  }
+  updateGuide();
+}
+// 57：文字が かわる ボタンは 長いほうの 文字に あわせた はばに して、となりの ボタンが ずれないように
+const JOUGI_BTN_LABELS = { jougiSepBtn:['はなす','かさねる'] };   // 60：角度・答えだけ ボタンは なくした
+let jougiMeasureCtx=null;
+function jougiFixBtnWidths(){
+  if(!jougiMeasureCtx) jougiMeasureCtx=document.createElement('canvas').getContext('2d');
+  for(const id in JOUGI_BTN_LABELS){
+    const b=document.getElementById(id); if(!b) continue;
+    const cs=getComputedStyle(b);
+    jougiMeasureCtx.font = cs.fontWeight+' '+cs.fontSize+' '+cs.fontFamily;
+    const tw=Math.max(...JOUGI_BTN_LABELS[id].map(t=>jougiMeasureCtx.measureText(t).width));
+    const extra=parseFloat(cs.paddingLeft)+parseFloat(cs.paddingRight)+parseFloat(cs.borderLeftWidth)+parseFloat(cs.borderRightWidth);
+    b.style.minWidth = Math.ceil(tw+extra+4)+'px';
   }
 }
 function jougiUpdateSepBtn(){
   const b=document.getElementById('jougiSepBtn'); if(!b) return;
+  b.style.display = (jougiOp==='one') ? 'none' : '';   // 1まいのときは 「はなす」は いらない
+  const sp=document.getElementById('jougiSep'); if(sp) sp.style.display=b.style.display;   // 60：区切り線も いっしょに
   const sep=jougiSeparated();
   b.classList.toggle('on', sep);
   b.textContent = sep ? 'かさねる' : 'はなす';
@@ -2003,7 +3711,7 @@ function jougiUpdateDegBtn(){
   b.textContent = jougiShowDeg ? '角度を かくす' : '角度を 表示';
 }
 function jougiUpdateModeBtns(){
-  const map={add:'jougiModeAdd', sub:'jougiModeSub', random:'jougiModeRand'};
+  const map={add:'jougiModeAdd', sub:'jougiModeSub', random:'jougiModeRand', one:'jougiModeOne'};
   for(const k in map){ const b=document.getElementById(map[k]); if(b) b.classList.toggle('on', jougiMode===k); }
 }
 
@@ -2033,7 +3741,7 @@ function checkChoice(i){
     }
   }
 }
-choiceBtns.forEach((b,i)=> b.addEventListener('click', ()=> checkChoice(i)));
+choiceBtns.forEach((b,i)=> b.addEventListener('click', ()=>{ if(b.classList.contains('locked')) return; checkChoice(i); chalJudge(); }));
 
 /* ===== タブ（選択／記入／かく／大きい角）の きりかえ ===== */
 const choiceArea = document.getElementById('choiceArea');
@@ -2052,6 +3760,48 @@ const tabReflexEl= document.getElementById('tabReflex');
 const tabReflex2El= document.getElementById('tabReflex2');
 const tabTriEl   = document.getElementById('tabTri');
 const tabJougiEl = document.getElementById('tabJougi');
+const tabRightEl = document.getElementById('tabRight');
+const tabVertEl  = document.getElementById('tabVert');
+const rightAreaEl= document.getElementById('rightArea');
+const vertAreaEl = document.getElementById('vertArea');
+const jougiCtlEl = document.getElementById('jougiCtl');
+const tabTwoEl   = document.getElementById('tabTwo');
+const twoAreaEl  = document.getElementById('twoArea');
+
+/* ===== 親タブ（4つ）と 小タブの 対応 =====
+   角度＝直角・回転／対頂角、分度器＝選択／記入／見つもり／かく、
+   応用問題＝大きい角／大きい角２／2つの考え方、三角形＝三角形／三角定規 */
+const GROUP_OF = {
+  right:'angle', vert:'angle',
+  choice:'prot', input:'prot', estimate:'prot', draw:'prot',
+  reflex:'adv',  reflex2:'adv', two:'adv',
+  triangle:'tri', jougi:'tri'
+};
+const GROUP_FIRST = { angle:'right', prot:'choice', adv:'reflex', tri:'triangle' };
+const groupLast   = Object.assign({}, GROUP_FIRST);   // 親タブごとに 最後に 見ていた 小タブを おぼえる
+const gTabEls = {
+  angle: document.getElementById('gAngle'),
+  prot : document.getElementById('gProt'),
+  adv  : document.getElementById('gAdv'),
+  tri  : document.getElementById('gTri')
+};
+const subTabList = [
+  ['right',tabRightEl],['vert',tabVertEl],
+  ['choice',tabChoiceEl],['input',tabInputEl],['estimate',tabEstimateEl],['draw',tabDrawEl],
+  ['reflex',tabReflexEl],['reflex2',tabReflex2El],['two',tabTwoEl],
+  ['triangle',tabTriEl],['jougi',tabJougiEl]
+];
+// いまの モードに 合わせて 親タブの 選択と 小タブの 出しわけを する（ゲームの 状態は さわらない）
+function applyTabUI(m){
+  const g = GROUP_OF[m] || 'prot';
+  groupLast[g] = m;
+  for(const k in gTabEls){ if(gTabEls[k]) gTabEls[k].classList.toggle('active', k===g); }
+  subTabList.forEach(([mode,el])=>{ if(el) el.style.display = (GROUP_OF[mode]===g) ? 'flex' : 'none'; });
+}
+for(const k in gTabEls){
+  if(gTabEls[k]) gTabEls[k].addEventListener('click', ((key)=>()=> setMode(groupLast[key]))(k));
+}
+document.getElementById('hintBtn').addEventListener('click', ()=>{ hintOn=!hintOn; updateGuide(); if(answerMode==='jougi') jougiRebuildKeep(); });
 function setStepLabels(m){
   const t1=document.getElementById('st1txt'), t2=document.getElementById('st2txt'), t3=document.getElementById('st3txt');
   if(m==='reflex'){
@@ -2066,8 +3816,12 @@ function setStepLabels(m){
   }
 }
 function setMode(m){
+  clearAutoNext();
+  chalBumpProblem();                          // 61
+  if(window.Challenge10 && Challenge10.isOn()) Challenge10.reset();   // 61：タブを かえたら 数えなおす
   answerMode = m;
-  const isChoice=(m==='choice'), isInput=(m==='input'), isEstimate=(m==='estimate'), isDraw=(m==='draw'), isReflex=(m==='reflex'), isReflex2=(m==='reflex2'), isTri=(m==='triangle'), isJougi=(m==='jougi');
+  const isChoice=(m==='choice'), isInput=(m==='input'), isEstimate=(m==='estimate'), isDraw=(m==='draw'), isReflex=(m==='reflex'), isReflex2=(m==='reflex2'), isTri=(m==='triangle'), isJougi=(m==='jougi'), isRight=(m==='right'), isVert=(m==='vert'), isTwo=(m==='two');
+  applyTabUI(m);                       // 親タブの 選択と 小タブの 出しわけ
   tabChoiceEl.classList.toggle('active', isChoice);
   tabInputEl.classList.toggle('active', isInput);
   tabEstimateEl.classList.toggle('active', isEstimate);
@@ -2076,26 +3830,38 @@ function setMode(m){
   tabReflex2El.classList.toggle('active', isReflex2);
   tabTriEl.classList.toggle('active', isTri);
   tabJougiEl.classList.toggle('active', isJougi);
+  tabRightEl.classList.toggle('active', isRight);
+  tabVertEl.classList.toggle('active', isVert);
+  tabTwoEl.classList.toggle('active', isTwo);
   choiceArea.style.display = isChoice ? 'block' : 'none';
   drawArea.style.display   = isDraw   ? 'block' : 'none';
   estArea.style.display    = isEstimate ? 'block' : 'none';
   triArea.style.display    = isTri    ? 'block' : 'none';
-  jougiAreaEl.style.display = isJougi ? 'block' : 'none';
-  stepsRowEl.style.display = (isJougi||isEstimate) ? 'none' : 'flex';   // 三角定規・見つもりは ステップ非表示
+  jougiAreaEl.style.display = 'none';   // 57：三角定規の 問題文は キャンバスの 中に 描く
+  jougiCtlEl.style.display  = isJougi ? 'block' : 'none';
+  rightAreaEl.style.display = isRight ? 'block' : 'none';
+  vertAreaEl.style.display  = isVert  ? 'block' : 'none';
+  twoAreaEl.style.display   = 'none';   // 51：2つの考え方の 問題文は キャンバスの 中に 描く（テンキーを せまくしない）
+  stepsRowEl.style.display = (isJougi||isEstimate||isRight||isVert||isTwo) ? 'none' : 'flex';   // 分度器を つかわない モードは ステップ非表示
   // 大きい角は ①のばす まで 筆算と入力を かくす
   reflexArea.style.display = 'none';
-  inputArea.style.display  = (isInput||isEstimate) ? 'block' : 'none';
+  twoExprMode(false);                // 53：式入力は 2つの考え方だけ（twoSetup が もどす）
+  twoSeq++;
+  inputArea.style.display  = (isInput||isEstimate||isRight||isVert||isTwo) ? 'flex' : 'none';
   // 共通リセット
   answered=false;
   drawMarked=false; drawCelebrated=false; drawMarkTime=0; wrongFlash=null;
   estReveal=false; estRevealT=0; estGuess=null;
+  hintOn=false;                      // タブを かえたら ヒントは とじる
   ansEl.value='';
+  setAnsUnit('°');                   // 単位は 既定の ° に もどす（直角モードが 上書きする）
   document.getElementById('result').textContent='';
   document.getElementById('result').className='result';
   hideHanamaru();
   renderChoices();
+  jougiEqRefresh();          // 三角定規いがいの タブでは 式を かくす
   setStepLabels(m);
-  layout();
+  resize();     // ステップ行の 出し入れで 左カラムの 高さが 変わるので キャンバスを 取り直す
   if(isChoice||isInput||isEstimate||isDraw){
     // 「大きい角２」「三角形」が 上書きした 辺と正解を もとに もどす（図と答えの ずれ防止）
     applyBaseProblem();
@@ -2115,7 +3881,7 @@ function setMode(m){
     prot.placed=false; prot.snapped=false;
     document.getElementById('ansLabel').textContent='のこり';
     reflexArea.style.display='flex';
-    inputArea.style.display='block';
+    inputArea.style.display='flex';
     reflex2RefreshCalc();
   } else if(isTri){
     // 同じ角で 作図を 最初から
@@ -2123,11 +3889,22 @@ function setMode(m){
     triLayout(); triSetStep('left');
   } else if(isJougi){
     jougiBuild();
-    document.getElementById('ansLabel').textContent=(jougiOp==='add'?'あ':'い');
-    inputArea.style.display='block';
-    jougiUpdateSepBtn(); jougiUpdateDegBtn();
+    jougiEqPhase='e1'; jougiEqV1=0; jougiEqV2=0;
+    inputArea.style.display='flex';
+    jougiUpdateSepBtn(); jougiUpdateDegBtn(); jougiUpdateEqBtn();
+    jougiApplyLabels();          // ラベルは jougiLetter() から（1まいで「い」になる ずれを 解消）
   } else if(isEstimate){
     document.getElementById('ansLabel').textContent='よそう';
+  } else if(isRight){
+    rightPhase = (rightKind==='deg') ? 'deg' : 'ks';
+    rightSpin=0;
+    rightSetup();
+  } else if(isVert){
+    vertPhase='a'; vertRevealA=false; vertRevealB=false;
+    vertSetup();
+  } else if(isTwo){
+    twoPhase='half';
+    twoSetup();
   } else {
     document.getElementById('ansLabel').textContent='こたえ';
   }
@@ -2143,8 +3920,19 @@ tabReflexEl.addEventListener('click', ()=> setMode('reflex'));
 tabReflex2El.addEventListener('click', ()=> setMode('reflex2'));
 tabTriEl.addEventListener('click', ()=> setMode('triangle'));
 tabJougiEl.addEventListener('click', ()=> setMode('jougi'));
+tabRightEl.addEventListener('click', ()=> setMode('right'));
+tabVertEl.addEventListener('click', ()=> setMode('vert'));
+tabTwoEl.addEventListener('click', ()=> setMode('two'));
 document.getElementById('jougiDegBtn').addEventListener('click', ()=>{
   jougiShowDeg=!jougiShowDeg; jougiUpdateDegBtn();
+});
+document.getElementById('jougiEqBtn').addEventListener('click', ()=>{
+  jougiUseEq=!jougiUseEq;
+  jougiEqPhase='e1'; jougiEqV1=0; jougiEqV2=0;   // 切りかえたら 式は さいしょから
+  ansEl.value='';
+  document.getElementById('result').textContent='';
+  document.getElementById('result').className='result';
+  jougiUpdateEqBtn(); jougiApplyLabels(); updateGuide();
 });
 document.getElementById('jougiSepBtn').addEventListener('click', ()=>{
   if(jougiSeparated()){
@@ -2156,29 +3944,39 @@ document.getElementById('jougiSepBtn').addEventListener('click', ()=>{
 });
 function jougiSetMode(m){
   jougiMode=m; jougiUpdateModeBtns();
+  if(window.Challenge10 && Challenge10.isOn()) Challenge10.reset();   // 61：出題タイプを かえたら 数えなおす
   newProblem();            // 選んだタイプで すぐに 新しい もんだいを 出す
 }
+document.getElementById('jougiModeOne').addEventListener('click', ()=> jougiSetMode('one'));
 document.getElementById('jougiModeAdd').addEventListener('click', ()=> jougiSetMode('add'));
 document.getElementById('jougiModeSub').addEventListener('click', ()=> jougiSetMode('sub'));
 document.getElementById('jougiModeRand').addEventListener('click', ()=> jougiSetMode('random'));
 jougiUpdateModeBtns();
+jougiUpdateEqBtn();
 
 // 画面の テンキー
 document.getElementById('numpad').addEventListener('click', e=>{
   const btn = e.target.closest('button'); if(!btn) return;
-  if(btn.id==='npok'){ if(answerMode==='reflex') checkReflex(); else if(answerMode==='reflex2') checkReflex2(); else if(answerMode==='jougi') checkJougi(); else if(answerMode==='estimate') checkEstimate(); else checkAnswer(); return; }
-  if(btn.id==='npdel'){ ansEl.value = ansEl.value.slice(0,-1); if(answerMode==='reflex') reflexRefreshCalc(); else if(answerMode==='reflex2') reflex2RefreshCalc(); return; }
+  if(btn.id==='npok'){ submitAnswer(); return; }
+  if(exprActive()){                           // 53・58：式を 入力
+    if(btn.id==='npdel') twoKey('del');
+    else if(btn.dataset.op) twoKey(btn.dataset.op);
+    else if(btn.dataset.d!==undefined) twoKey(btn.dataset.d);
+    return;
+  }
+  if(btn.dataset.op) return;
+  if(btn.id==='npdel'){ ansEl.value = ansEl.value.slice(0,-1); refreshCalcForMode(); return; }
   const d = btn.getAttribute('data-d'); if(d===null) return;
   let val = ansEl.value;
   if(val==='0') val='';
   if(val.length>=3) return;
   ansEl.value = val + d;
-  if(answerMode==='reflex') reflexRefreshCalc();
-  else if(answerMode==='reflex2') reflex2RefreshCalc();
+  refreshCalcForMode();
 });
 
 document.getElementById('next').addEventListener('click', newProblem);
 document.getElementById('redo').addEventListener('click', ()=>{
+  clearAutoNext();
   if(answerMode==='reflex'){
     // ①の のばすところから やりなおし（同じ もんだい）
     extended=false; reflexPhase='remain'; reflexRemDone=false; answered=false;
@@ -2217,14 +4015,46 @@ document.getElementById('redo').addEventListener('click', ()=>{
     return;
   }
   if(answerMode==='jougi'){
-    // 同じ もんだいを 重ねた状態に もどす
+    // 同じ もんだいを 重ねた状態・式の さいしょに もどす
     answered=false;
     jougiSquares.forEach(s=>{ s.off.x=0; s.off.y=0; });
-    jougiUpdateSepBtn();
+    jougiEqPhase='e1'; jougiEqV1=0; jougiEqV2=0;
+    jougiUpdateSepBtn(); jougiApplyLabels();
     ansEl.value='';
     document.getElementById('result').textContent='';
     document.getElementById('result').className='result';
-    hideHanamaru();
+    hideHanamaru(); updateGuide();
+    return;
+  }
+  if(answerMode==='right'){
+    // 同じ もんだいを 最初から
+    answered=false;
+    rightPhase = (rightKind==='deg') ? 'deg' : 'ks';
+    rightSpin=0;
+    rightSetup();
+    document.getElementById('result').textContent='';
+    document.getElementById('result').className='result';
+    hideHanamaru(); updateGuide();
+    return;
+  }
+  if(answerMode==='vert'){
+    // 同じ もんだいを 「あ」から もう一度
+    answered=false;
+    vertPhase='a'; vertRevealA=false; vertRevealB=false;
+    vertSetup();
+    document.getElementById('result').textContent='';
+    document.getElementById('result').className='result';
+    hideHanamaru(); updateGuide();
+    return;
+  }
+  if(answerMode==='two'){
+    // 同じ 角を 「180＋」の 考え方から もう一度
+    answered=false;
+    twoPhase='half';
+    twoSetup();
+    document.getElementById('result').textContent='';
+    document.getElementById('result').className='result';
+    hideHanamaru(); updateGuide();
     return;
   }
   if(answerMode==='estimate'){
@@ -2267,12 +4097,28 @@ document.getElementById('guideov').addEventListener('change',e=>imgCfg.guide=e.t
 document.getElementById('useimg').addEventListener('change',e=>imgCfg.useImage=e.target.checked);
 
 /* ======================= 起動 ======================= */
-window.addEventListener('resize', ()=>{ resize(); });
+// 左カラムの 高さが 何かの ひょうしに 変わっても、絵が つぶれず 正しく ひきなおるように 見張る
+if(window.ResizeObserver){
+  let roT=0;
+  const ro=new ResizeObserver(()=>{ clearTimeout(roT); roT=setTimeout(()=>{ resize(); fitGuide(); }, 60); });
+  ro.observe(cv.parentElement);
+}
+window.addEventListener('resize', ()=>{ resize(); fitGuide(); });
 // 画面回転や アドレスバー・キーボードの 開閉でも サイズを 取り直す（吸着ズレ防止）
 window.addEventListener('orientationchange', ()=>{ resize(); setTimeout(resize, 300); });
 if(window.visualViewport){ window.visualViewport.addEventListener('resize', ()=>{ resize(); }); }
 // フォント確定で 文字幅が 変わり 親の幅が ずれることがあるので 確定後にも 取り直す
 if(document.fonts && document.fonts.ready){ document.fonts.ready.then(()=>{ resize(); }); }
+// 61：10問チャレンジ
+Challenge10.init({
+  mount: '#chal-mount',
+  total: 10,
+  next: chalNext,
+  onToggle: ()=>{ chalForceNext=true; },
+  nextDelay: HANAMARU_SHOW_MS + AUTO_NEXT_MS,   // ふだんの 自動で つぎへ と 同じ 間
+  record: false                                   // 共用の パソコンで 前の子の 記録が 見えないように
+});
+applyTabUI(answerMode);   // タブ段の 高さを 決めてから キャンバスを はかる
 resize();
 newProblem();
 render();
